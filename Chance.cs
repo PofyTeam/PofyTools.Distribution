@@ -3,6 +3,9 @@
 	using UnityEngine;
 	using System.Collections;
 
+	/// <summary>
+	/// Distribution based on chance with optional Auto Deck Size
+	/// </summary>
 	public class Chance
 	{
 		
@@ -27,6 +30,10 @@
 
 		private Deck<bool> _deck;
 
+		/// <summary>
+		/// Gets total card count in distribution deck.
+		/// </summary>
+		/// <value>The count.</value>
 		public int Count {
 			get{ return this._deck.Count; }
 		}
