@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace PofyTools
+namespace PofyTools.Distribution
 {
 	public interface IClonable
 	{

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace PofyTools
+namespace PofyTools.Distribution
 {
 	public interface IShufflable
 	{
@@ -53,22 +53,25 @@ namespace PofyTools
 			}
 		}
 
-        #region State
-        public enum State : int
-        {
-            Empty = 0,
-            Initialized = 1,
-            Populated = 2,
-            Shuffled = 3,
-        }
+		#region State
 
-        protected State _state = State.Empty;
-        public State state { get { return this._state; } }
-        #endregion
+		public enum State : int
+		{
+			Empty = 0,
+			Initialized = 1,
+			Populated = 2,
+			Shuffled = 3,
+		}
 
-        #region IShufflable implementation
+		protected State _state = State.Empty;
 
-        //protected bool _isShuffled = false;
+		public State state { get { return this._state; } }
+
+		#endregion
+
+		#region IShufflable implementation
+
+		//protected bool _isShuffled = false;
 
 		/// <summary>
 		/// Gets a value indicating whether this <see cref="PofyTools.Deck`1"/> is shuffled.
@@ -94,7 +97,7 @@ namespace PofyTools
 				++this._head;
 			}
 
-            this._state = State.Shuffled;
+			this._state = State.Shuffled;
 
 			this._head = 0;
 		}
@@ -355,12 +358,13 @@ namespace PofyTools
 			Deck<T> distributionDeck = new Deck<T> ();
 			foreach (var card in this._cards) {
 				card.weight = Mathf.Max (1, card.weight);
-				int totalNumberOfCopies = Mathf.RoundToInt ((float)this.MaxWeight / (float)card.weight);
-				AlertCanvas.Instance.alert (string.Format ("{0} : {1}", card.instance, totalNumberOfCopies), AlertPanel.Type.INFO);
-				while (totalNumberOfCopies > 0) {
+//				int totalNumberOfCopies = Mathf.RoundToInt ((float)this.MaxWeight / (float)card.weight);
+				int count = card.weight;
+//				AlertCanvas.Instance.alert (string.Format ("{0} : {1}", card.instance, totalNumberOfCopies), AlertPanel.Type.INFO);
+				while (count > 0) {
 					Card copy = new Card (card);
 					distributionDeck._cards.Add (copy);
-					--totalNumberOfCopies;
+					--count;
 				}
 			}
 
@@ -434,8 +438,8 @@ namespace PofyTools
 		{
 			this._cards = new List<Card> (source._cards);
 			this._head = source._head;
-            //this._isShuffled = source._isShuffled;
-            this._state = source._state;
+			//this._isShuffled = source._isShuffled;
+			this._state = source._state;
 			this._maxWeight = source._maxWeight;
 			this._minWeight = source._minWeight;
 			if (source.hasIdentityCard)
