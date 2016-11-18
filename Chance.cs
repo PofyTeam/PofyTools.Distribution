@@ -11,21 +11,39 @@
 		
 		private bool _autoDeckSize = true;
 
+		/// <summary>
+		/// Gets or sets a value indicating whether this <see cref="PofyTools.Distribution.Chance"/> auto deck size.
+		/// </summary>
+		/// <value><c>true</c> if auto deck size; otherwise, <c>false</c>.</value>
 		public bool autoDeckSize {
 			get{ return this._autoDeckSize; }
+			set {
+				if (value != this._autoDeckSize)
+					this._autoDeckSize = value;
+				else
+					Debug.LogWarning ("Chance: Auto Deck size is already " + value + ".");
+			}
 		}
 
 		[Range (0f, 1f)] private float _chance = 0;
 
+		/// <summary>
+		/// Gets or sets the chance (0 - 1).
+		/// </summary>
+		/// <value>The chance.</value>
 		public float chance {
 			get{ return this._chance; }
 			set {
 				if (value != this._chance) {
-					//rebuild deck;
 					this._chance = value;
+					BuildDeck ();
 				}
 
 			}
+		}
+
+		public float percent {
+			get{ return this._chance * 100; }
 		}
 
 		private Deck<bool> _deck;
