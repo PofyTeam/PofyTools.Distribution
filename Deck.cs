@@ -445,6 +445,11 @@ namespace PofyTools.Distribution
 			if (source.hasIdentityCard)
 				this._identityCard = FindInstanceCard (source._identityCard.instance);
 		}
+
+		public Deck (params Card[] cards)
+		{
+			this._cards = new List<Card> (cards);
+		}
 	}
 }
 
