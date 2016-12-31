@@ -62,7 +62,7 @@
 
 		public bool RandomValue {
 			get {
-				return Random.Range (0, 1) < this._chance;
+				return Random.Range (0f, 1f) < this._chance;
 			}
 		}
 
