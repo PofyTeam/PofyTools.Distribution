@@ -129,5 +129,19 @@
 
 			Initialize ();
 		}
+
+		#region Static Methods
+
+		public static bool FiftyFifty {
+			get{ return Random.Range (0, 2) > 0; }
+		}
+
+		public static bool TryWithChance (float chance)
+		{
+			chance = Mathf.Clamp01 (chance);
+			return Random.Range (0f, 1f) < chance;
+		}
+
+		#endregion
 	}
 }
