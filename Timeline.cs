@@ -7,7 +7,7 @@
     public class Timeline<T, U>
     {
         protected List<TimeEvent> _events = null;
-
+        public Dictionary<U, TimeEvent> _lastEventOfType = null;
         private Timeline ()
         {
         }
@@ -15,16 +15,20 @@
         public Timeline (int initialCapacity)
         {
             this._events = new List<TimeEvent> (initialCapacity);
-            this._filteredEvents = new List<TimeEvent> (initialCapacity/2 +1);
+            this._lastEventOfType = new Dictionary<U, TimeEvent> (10);
+            this._filteredEvents = new List<TimeEvent> (initialCapacity / 2 + 1);
         }
 
         public TimeEvent AddEvent (T content, U type, float timestamp = -1f)
         {
             timestamp = (timestamp == -1) ? Time.time : timestamp;
             TimeEvent tEvent = new TimeEvent (content, type, timestamp);
-
+            this._events.Add (tEvent);
+            this._lastEventOfType[type] = tEvent;
             return tEvent;
         }
+
+        #region Type Compare
 
         public List<TimeEvent> GetAllEvents () { return this._events; }
 
@@ -63,11 +67,18 @@
             return this._filteredEvents;
         }
 
+        #endregion
+
         public class TimeEvent
         {
             public T content = default (T);
             public float timestamp = 0f;
             public U type = default (U);
+
+            public float elapsedTime
+            {
+                get { return Time.time - timestamp; }
+            }
 
             public TimeEvent () { }
             public TimeEvent (T content, U type, float timestamp)
