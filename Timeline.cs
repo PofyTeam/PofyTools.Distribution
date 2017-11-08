@@ -8,7 +8,7 @@
     {
         protected List<TimeEvent> _events = null;
         public Dictionary<U, TimeEvent> _lastEventOfType = null;
-
+        public TimeEvent nullVar { get { return null; } }
         protected Range _eventSpan = new Range ();
 
         #region Constructors
