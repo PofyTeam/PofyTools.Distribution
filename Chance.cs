@@ -1,147 +1,206 @@
 ﻿namespace PofyTools.Distribution
 {
-	using UnityEngine;
-	using System.Collections;
+    using UnityEngine;
+    using System.Collections;
 
-	/// <summary>
-	/// Distribution based on chance with optional Auto Deck Size
-	/// </summary>
-	public class Chance
-	{
-		
-		private bool _autoDeckSize = true;
+    /// <summary>
+    /// Distribution based on chance with optional Auto Deck Size
+    /// </summary>
+    public class Chance
+    {
 
-		/// <summary>
-		/// Gets or sets a value indicating whether this <see cref="PofyTools.Distribution.Chance"/> auto deck size.
-		/// </summary>
-		/// <value><c>true</c> if auto deck size; otherwise, <c>false</c>.</value>
-		public bool autoDeckSize {
-			get{ return this._autoDeckSize; }
-			set {
-				if (value != this._autoDeckSize)
-					this._autoDeckSize = value;
-				else
-					Debug.LogWarning ("Chance: Auto Deck size is already " + value + ".");
-			}
-		}
+        private bool _autoDeckSize = true;
 
-		[Range (0f, 1f)] private float _chance = 0;
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="PofyTools.Distribution.Chance"/> auto deck size.
+        /// </summary>
+        /// <value><c>true</c> if auto deck size; otherwise, <c>false</c>.</value>
+        public bool autoDeckSize
+        {
+            get { return this._autoDeckSize; }
+            set
+            {
+                if (value != this._autoDeckSize)
+                    this._autoDeckSize = value;
+                else
+                    Debug.LogWarning ("Chance: Auto Deck size is already " + value + ".");
+            }
+        }
 
-		/// <summary>
-		/// Gets or sets the chance (0 - 1).
-		/// </summary>
-		/// <value>The chance.</value>
-		public float chance {
-			get{ return this._chance; }
-			set {
-				if (value != this._chance) {
-					this._chance = value;
-					BuildDeck ();
-				}
+        [Range (0f, 1f)] private float _chance = 0;
 
-			}
-		}
+        /// <summary>
+        /// Gets or sets the chance (0 - 1).
+        /// </summary>
+        /// <value>The chance.</value>
+        public float chance
+        {
+            get { return this._chance; }
+            set
+            {
+                if (value != this._chance)
+                {
+                    this._chance = value;
+                    BuildDeck ();
+                }
 
-		public float percent {
-			get{ return this._chance * 100; }
-		}
+            }
+        }
 
-		private Deck<bool> _deck;
+        public float percent
+        {
+            get { return this._chance * 100; }
+        }
 
-		/// <summary>
-		/// Gets total card count in distribution deck.
-		/// </summary>
-		/// <value>The count.</value>
-		public int Count {
-			get{ return this._deck.Count; }
-		}
+        private Deck<bool> _deck;
 
-		public bool Value {
-			get{ return this._deck.PickNextCard ().instance; }
-		}
+        /// <summary>
+        /// Gets total card count in distribution deck.
+        /// </summary>
+        /// <value>The count.</value>
+        public int Count
+        {
+            get { return this._deck.Count; }
+        }
 
-		public bool RandomValue {
-			get {
-				return Random.Range (0f, 1f) < this._chance;
-			}
-		}
+        public bool Value
+        {
+            get { return this._deck.PickNextCard ().instance; }
+        }
 
-		void Initialize ()
-		{
-			BuildDeck ();
-		}
+        public bool RandomValue
+        {
+            get
+            {
+                return Random.Range (0f, 1f) < this._chance;
+            }
+        }
 
-		void BuildDeck ()
-		{
-			int deckSize = 0;
-			float percent = this._chance * 100;
-			if (this._autoDeckSize) {
-				if (percent % 100 == 0) {
-					deckSize = 1;
-				} else if (percent % 50 == 0) {
-					deckSize = 2;
-				} else if (percent % 25 == 0) {
-					deckSize = 4;
-				} else if (percent % 20 == 0) {
-					deckSize = 5;
-				} else if (percent % 10 == 0) {
-					deckSize = 10;
-				} else if (percent % 5 == 0) {
-					deckSize = 20;
-				} else if (percent % 4 == 0) {
-					deckSize = 25;
-				} else if (percent % 2 == 0) {
-					deckSize = 50;
-				} else if (percent % 1 == 0) {
-					deckSize = 100;
-				} else {
-					deckSize = 1000;
-				}
+        void Initialize ()
+        {
+            BuildDeck ();
+        }
 
-			} else {
-				deckSize = 1000;
-			}
+        void BuildDeck ()
+        {
+            int deckSize = 0;
+            float percent = this._chance * 100;
+            if (this._autoDeckSize)
+            {
+                if (percent % 100 == 0)
+                {
+                    deckSize = 1;
+                }
+                else if (percent % 50 == 0)
+                {
+                    deckSize = 2;
+                }
+                else if (percent % 25 == 0)
+                {
+                    deckSize = 4;
+                }
+                else if (percent % 20 == 0)
+                {
+                    deckSize = 5;
+                }
+                else if (percent % 10 == 0)
+                {
+                    deckSize = 10;
+                }
+                else if (percent % 5 == 0)
+                {
+                    deckSize = 20;
+                }
+                else if (percent % 4 == 0)
+                {
+                    deckSize = 25;
+                }
+                else if (percent % 2 == 0)
+                {
+                    deckSize = 50;
+                }
+                else if (percent % 1 == 0)
+                {
+                    deckSize = 100;
+                }
+                else
+                {
+                    deckSize = 1000;
+                }
 
-			this._deck = new Deck<bool> (deckSize);
-			int trueCount = (int)(this._chance * deckSize);
-			int falseCount = deckSize - trueCount;
+            }
+            else
+            {
+                deckSize = 1000;
+            }
 
-			if (trueCount > 0)
-				this._deck.AddCard (new Deck<bool>.Card (true, trueCount));
-			if (falseCount > 0)
-				this._deck.AddCard (new Deck<bool>.Card (false, falseCount));
+            this._deck = new Deck<bool> (deckSize);
+            int trueCount = (int)(this._chance * deckSize);
+            int falseCount = deckSize - trueCount;
 
-			this._deck = this._deck.CreateDistributionDeck ();
-		}
+            if (trueCount > 0)
+                this._deck.AddCard (new Deck<bool>.Card (true, trueCount));
+            if (falseCount > 0)
+                this._deck.AddCard (new Deck<bool>.Card (false, falseCount));
 
-		public Chance () : this (1f)
-		{
-		}
+            this._deck = this._deck.CreateDistributionDeck ();
+        }
 
-		public Chance (float chance) : this (chance, true)
-		{
-		}
+        public Chance () : this (1f)
+        {
+        }
 
-		public Chance (float chance, bool autoDeckSize)
-		{
-			this._chance = chance;
-			this._autoDeckSize = autoDeckSize;
+        public Chance (float chance) : this (chance, true)
+        {
+        }
 
-			Initialize ();
-		}
+        public Chance (float chance, bool autoDeckSize)
+        {
+            this._chance = chance;
+            this._autoDeckSize = autoDeckSize;
 
-		#region Static Methods
+            Initialize ();
+        }
 
-		public static bool FiftyFifty {
-			get{ return Random.Range (0, 2) > 0; }
-		}
+        #region Static Methods
 
-		public static bool TryWithChance (float chance)
-		{
-			chance = Mathf.Clamp01 (chance);
-			return Random.Range (0f, 1f) < chance;
-		}
+        public static bool FiftyFifty
+        {
+            get { return Random.Range (0, 2) > 0; }
+        }
 
-		#endregion
-	}
+        public static bool TryWithChance (float chance)
+        {
+            chance = Mathf.Clamp01 (chance);
+            return Random.Range (0f, 1f) < chance;
+        }
+
+        public static int GenerateDigits (int digits)
+        {
+            int total = 0;
+
+            for (int i = 0; i < digits; ++i)
+            {
+                int value = (int)Mathf.Pow (10, i);
+                int result = 0;
+                int count = 0;
+                while (Chance.FiftyFifty && count < 10)
+                {
+                    count++;
+                    result += value;
+                }
+
+                total += result;
+            }
+
+            return total;
+        }
+
+        public static int GenerateDigits (int digits, int min, int max)
+        {
+            return Mathf.Clamp (GenerateDigits (digits), min, max);
+        }
+
+        #endregion
+    }
 }

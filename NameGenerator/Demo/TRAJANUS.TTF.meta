@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: e5efd7e677d1d8b438d59aa256fe09d2
+timeCreated: 1500194779
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Trajanus Roman
+  fontNames:
+  - Trajanus Roman
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
