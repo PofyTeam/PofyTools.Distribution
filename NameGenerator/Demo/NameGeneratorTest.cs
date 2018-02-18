@@ -13,9 +13,9 @@ public class NameGeneratorTest : MonoBehaviour
 
     public Text label;
 
-    void Awake()
+    void Awake ()
     {
-        this.data.Initialize();
+        this.data.Initialize ();
     }
 
     //    public void Generate()
@@ -23,44 +23,50 @@ public class NameGeneratorTest : MonoBehaviour
     //        this.label.text = this.data.GenerateName("angel", "good");
     //    }
 
-    public void GenerateStory()
+    public void GenerateGeoName ()
+    {
+        string geoName = this.data.GenerateGeolocationName(Chance.FiftyFifty,true,Chance.FiftyFifty);
+        this.label.text = geoName;
+    }
+
+    public void GenerateStory ()
     {
         bool useAdjective = true;
-//        Debug.LogError("useAdjective " + useAdjective);
+        //        Debug.LogError("useAdjective " + useAdjective);
         bool useSubjective = true;
-//        Debug.LogError("useSubjective " + useSubjective);
+        //        Debug.LogError("useSubjective " + useSubjective);
         bool useGenetive = true;
-//        Debug.LogError("useGenetive " + useGenetive);
-        string story = this.data.GenerateStoryName(useAdjective, useSubjective, useGenetive);
-//        Debug.LogError(story);
-        this.label.text = story.ToTitle();
+        //        Debug.LogError("useGenetive " + useGenetive);
+        string story = this.data.GenerateStoryName (useAdjective, useSubjective, useGenetive);
+        //        Debug.LogError(story);
+        this.label.text = story.ToTitle ();
 
     }
 
-    public void GenerateTrueRandom()
+    public void GenerateTrueRandom ()
     {
-        this.label.text = this.data.GenerateTrueRandomName().ToTitle();
+        this.label.text = this.data.GenerateTrueRandomName ().ToTitle ();
     }
 
-    public void GetAnyName()
+    public void GetAnyName ()
     {
-        this.label.text = this.data.GetAnyName(Chance.FiftyFifty).ToTitle();
+        this.label.text = this.data.GetAnyName (Chance.FiftyFifty).ToTitle ();
     }
 
-    public void GetAnySerbianName()
+    public void GetAnySerbianName ()
     {
-        this.label.text = this.data.GetNameSet("town").GeneratePseudoName().ToTitle();
+        this.label.text = this.data.GetNameSet ("town").GeneratePseudoName ().ToTitle ();
     }
 
-    [ContextMenu("Save")]
-    public void Save()
+    [ContextMenu ("Save")]
+    public void Save ()
     {
-        SemanticData.SaveData(this.data);
+        SemanticData.SaveData (this.data);
     }
 
-    [ContextMenu("Load")]
-    public void Load()
+    [ContextMenu ("Load")]
+    public void Load ()
     {
-        SemanticData.LoadData(this.data);
+        SemanticData.LoadData (this.data);
     }
 }
