@@ -23,25 +23,30 @@ public class NameGeneratorTest : MonoBehaviour
     //        this.label.text = this.data.GenerateName("angel", "good");
     //    }
 
-    public void GenerateGeoName ()
+    //public void GenerateGeoName ()
+    //{
+    //    string geoName = this.data.GenerateGeolocationName (Chance.FiftyFifty, true, Chance.FiftyFifty);
+    //    this.label.text = geoName;
+    //}
+
+    public void GenerateLakeName ()
     {
-        string geoName = this.data.GenerateGeolocationName(Chance.FiftyFifty,true,Chance.FiftyFifty);
-        this.label.text = geoName;
+        this.label.text = this.data.GetNameSet ("geo_lake").GenerateTitle ();
     }
 
-    public void GenerateStory ()
-    {
-        bool useAdjective = true;
-        //        Debug.LogError("useAdjective " + useAdjective);
-        bool useSubjective = true;
-        //        Debug.LogError("useSubjective " + useSubjective);
-        bool useGenetive = true;
-        //        Debug.LogError("useGenetive " + useGenetive);
-        string story = this.data.GenerateStoryName (useAdjective, useSubjective, useGenetive);
-        //        Debug.LogError(story);
-        this.label.text = story.ToTitle ();
+    //public void GenerateStory ()
+    //{
+    //    bool useAdjective = true;
+    //    //        Debug.LogError("useAdjective " + useAdjective);
+    //    bool useSubjective = true;
+    //    //        Debug.LogError("useSubjective " + useSubjective);
+    //    bool useGenetive = true;
+    //    //        Debug.LogError("useGenetive " + useGenetive);
+    //    string story = this.data.GenerateStoryName (useAdjective, useSubjective, useGenetive);
+    //    //        Debug.LogError(story);
+    //    this.label.text = story.ToTitle ();
 
-    }
+    //}
 
     public void GenerateTrueRandom ()
     {
@@ -58,15 +63,16 @@ public class NameGeneratorTest : MonoBehaviour
         this.label.text = this.data.GetNameSet ("town").GeneratePseudoName ().ToTitle ();
     }
 
+
     [ContextMenu ("Save")]
     public void Save ()
     {
-        SemanticData.SaveData (this.data);
+        this.data.Save ("/definitions/semantic_data.json");
     }
 
     [ContextMenu ("Load")]
     public void Load ()
     {
-        SemanticData.LoadData (this.data);
+        this.data.Load ("/definitions/semantic_data.json");
     }
 }

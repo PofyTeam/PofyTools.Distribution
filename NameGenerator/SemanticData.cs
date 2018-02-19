@@ -13,6 +13,17 @@
     {
         public const string TAG = "<color=green><b>SemanticData: </b></color>";
 
+        #region Constructors
+
+        public SemanticData () { }
+
+        public SemanticData (string fullPath)
+        {
+            this._fullPath = fullPath;
+        }
+
+        #endregion
+
         #region Serializable Data
 
         [Header ("Database Version")]
@@ -20,15 +31,10 @@
 
         [Header ("Name Sets")]
         public List<NameSet> setNames = new List<NameSet> ();
-        [Header ("Title Sets")]
-        public List<TitleSet> setTitles = new List<TitleSet> ();
+        //[Header ("Title Sets")]
+        //public List<TitleSet> setTitles = new List<TitleSet> ();
         [Header ("Grammar Sets")]
         public List<GrammarSet> setGrammars = new List<GrammarSet> ();
-
-        [Header ("Story Mode")]
-        public List<string> subjectiveStory = new List<string> ();
-        [Header ("Geolocation")]
-        public List<string> subjectiveGeolocation = new List<string> ();
 
         [Header ("Syllable Generator")]
         public List<string> vowels = new List<string> ();
@@ -50,6 +56,9 @@
         #endregion
 
         #region Runtimes
+
+        [System.NonSerialized]
+        protected string _fullPath;
 
         [System.NonSerialized]
         protected Dictionary<string, NameSet> _setNames = new Dictionary<string, NameSet> ();
@@ -85,8 +94,6 @@
             this._setGrammars.Clear ();
             this._setGrammarIds.Clear ();
 
-            this._allNouns.AddRange (this.subjectiveGeolocation);
-
             foreach (var nameSet in this.setNames)
             {
                 if (this._setNames.ContainsKey (nameSet.id))
@@ -96,40 +103,40 @@
                 this._setNameIds.Add (nameSet.id);
             }
 
-            foreach (var titleSet in this.setTitles)
-            {
-                if (this._setTitles.ContainsKey (titleSet.id))
-                    Debug.LogWarning (TAG + "Id " + titleSet.id + " already present in Title Sets. Owerwritting...");
+            //foreach (var titleSet in this.setTitles)
+            //{
+            //    if (this._setTitles.ContainsKey (titleSet.id))
+            //        Debug.LogWarning (TAG + "Id " + titleSet.id + " already present in Title Sets. Owerwritting...");
 
-                this._setTitles[titleSet.id] = titleSet;
-                this._setTitleIds.Add (titleSet.id);
+            //    this._setTitles[titleSet.id] = titleSet;
+            //    this._setTitleIds.Add (titleSet.id);
 
-                foreach (var adjective in titleSet.adjectives)
-                {
-                    this._allAdjectives.Add (adjective);
-                }
+            //    foreach (var adjective in titleSet.adjectives)
+            //    {
+            //        this._allAdjectives.Add (adjective);
+            //    }
 
-                foreach (var subjective in titleSet.subjectivesCons)
-                {
-                    this._allNouns.Add (subjective);
-                }
+            //    foreach (var subjective in titleSet.subjectivesCons)
+            //    {
+            //        this._allNouns.Add (subjective);
+            //    }
 
-                foreach (var subjective in titleSet.subjectivesPros)
-                {
-                    this._allNouns.Add (subjective);
-                }
+            //    foreach (var subjective in titleSet.subjectivesPros)
+            //    {
+            //        this._allNouns.Add (subjective);
+            //    }
 
-                foreach (var subjective in titleSet.subjectivesNeutral)
-                {
-                    this._allNouns.Add (subjective);
-                }
+            //    foreach (var subjective in titleSet.subjectivesNeutral)
+            //    {
+            //        this._allNouns.Add (subjective);
+            //    }
 
-                foreach (var genetive in titleSet.genetives)
-                {
-                    this._allNouns.Add (genetive);
-                }
+            //    foreach (var genetive in titleSet.genetives)
+            //    {
+            //        this._allNouns.Add (genetive);
+            //    }
 
-            }
+            //}
 
             foreach (var grammarset in this.setGrammars)
             {
@@ -207,6 +214,9 @@
         //        }
         //TODO
 
+        //
+
+
         public NameSet GetNameSet (string id)
         {
             NameSet nameset = null;
@@ -221,66 +231,66 @@
             return titleset;
         }
 
-        public string GenerateStoryName (bool useAdjective = true, bool useSubjective = true, bool useGenetive = true)
-        {
-            string result = string.Empty;
+        //public string GenerateStoryName (bool useAdjective = true, bool useSubjective = true, bool useGenetive = true)
+        //{
+        //    string result = string.Empty;
 
-            if (useSubjective)
-            {
-                result = "the ";
-                if (useAdjective)
-                {
-                    result += GetAdjective () + " ";
-                }
+        //    if (useSubjective)
+        //    {
+        //        result = "the ";
+        //        if (useAdjective)
+        //        {
+        //            result += GetAdjective () + " ";
+        //        }
 
-                result += this.subjectiveStory.GetRandom ();
-            }
-            if (useGenetive)
-            {
-                //TODO: pick genetive from other titlesets
-                //                result += " of the ";
-                //                result += this._allNouns.GetRandom();
-                result += " " + GetGenetive ();
-            }
-            result = result.Trim ();
-            if (string.IsNullOrEmpty (result))
-                result = "NULL(story)";
-            return result;
-        }
+        //        result += this.subjectiveStory.GetRandom ();
+        //    }
+        //    if (useGenetive)
+        //    {
+        //        //TODO: pick genetive from other titlesets
+        //        //                result += " of the ";
+        //        //                result += this._allNouns.GetRandom();
+        //        result += " " + GetGenetive ();
+        //    }
+        //    result = result.Trim ();
+        //    if (string.IsNullOrEmpty (result))
+        //        result = "NULL(story)";
+        //    return result;
+        //}
 
-        public string GenerateGeolocationName (bool usePrefix = true, bool useSubjective = true, bool useGenetive = true)
-        {
-            string result = string.Empty;
+        //public string GenerateGeolocationName (bool usePrefix = true, bool useSubjective = true, bool useGenetive = true)
+        //{
+        //    string result = string.Empty;
 
-            if (Chance.FiftyFifty)
-            {
+        //    if (Chance.FiftyFifty)
+        //    {
 
-                return this.GetNameSet ("town").GetRandomName (true);
-            }
+        //        return this.GetNameSet ("town").GetRandomName ();
+        //    }
 
-            if (useSubjective)
-            {
-                //Prefix
-                if (usePrefix)
-                    result += GetPrefix ();
+        //    if (useSubjective)
+        //    {
+        //        //Prefix
+        //        if (usePrefix)
+        //            result += GetPrefix ();
 
-                //Subjective
-                result += this.subjectiveGeolocation.GetRandom ();
-            }
+        //        //Subjective
+        //        result += this.subjectiveGeolocation.GetRandom ();
+        //    }
 
-            //Genetive
-            if (useGenetive && !usePrefix)
-            {
-                //TODO: pick genetive from other titlesets
-                //                result += " of the ";
-                //                result += this._allNouns.GetRandom();
-                result += " " + GetGenetive (forceSingular: true, useOrdinals: false, nameSet: "");
-            }
-            result = result.Trim ();
-            if (string.IsNullOrEmpty (result))
-                result = "NULL(story)";
-            return result;
-        }
+        //    //Genetive
+        //    if (useGenetive && !usePrefix)
+        //    {
+        //        //TODO: pick genetive from other titlesets
+        //        //                result += " of the ";
+        //        //                result += this._allNouns.GetRandom();
+        //        result += " " + GetGenetive (forceSingular: true, useOrdinals: false, nameSet: "");
+        //    }
+        //    result = result.Trim ();
+        //    if (string.IsNullOrEmpty (result))
+        //        result = "NULL(story)";
+        //    return result;
+        //}
 
         public string GetGenetive (bool forceSingular = false, bool useOrdinals = true, string nameSet = "")
         {
@@ -349,7 +359,7 @@
             //Name
             if (Chance.FiftyFifty)
             {
-                string name = (nameSet == "") ? GetAnyName (Chance.FiftyFifty) : GetNameSet (nameSet).GetRandomName (true);
+                string name = (nameSet == "") ? GetAnyName (Chance.FiftyFifty) : GetNameSet (nameSet).GetRandomName ();
                 if (!string.IsNullOrEmpty (name))
                     result += (usePossessiveApostrophe) ? NameToAdjective (name) : name;
                 else
@@ -578,7 +588,7 @@
 
         #endregion
 
-        #region Initialize
+        #region IInitializable
 
         public bool Initialize ()
         {
@@ -601,11 +611,33 @@
         #endregion
 
         #region File IO
+        public void Load ()
+        {
+            SemanticData.LoadData (this);
+        }
+
+        public void Load (string path)
+        {
+            this._fullPath = path;
+            Load ();
+        }
+
+        public void Save ()
+        {
+            SemanticData.SaveData (this);
+        }
+
+        public void Save (string path)
+        {
+            this._fullPath = path;
+            Save ();
+        }
 
         public static void LoadData (SemanticData data)
         {
-            DataUtility.LoadOverwrite (Application.dataPath + "/name_data.json", data);
+            DataUtility.LoadOverwrite (Application.dataPath + data._fullPath, data);
             data.PostLoad ();
+
         }
 
         public void PostLoad ()
@@ -628,54 +660,54 @@
                 nameset.sufixes.Sort ();
             }
 
-            foreach (var titleset in this.setTitles)
-            {
-                for (int i = 0; i < titleset.adjectives.Count; i++)
-                {
-                    titleset.adjectives[i] = titleset.adjectives[i].ToLower ();
-                }
+            //foreach (var titleset in this.setTitles)
+            //{
+            //    for (int i = 0; i < titleset.adjectives.Count; i++)
+            //    {
+            //        titleset.adjectives[i] = titleset.adjectives[i].ToLower ();
+            //    }
 
-                titleset.adjectives.Sort ();
+            //    titleset.adjectives.Sort ();
 
-                for (int i = 0; i < titleset.genetives.Count; i++)
-                {
-                    titleset.genetives[i] = titleset.genetives[i].ToLower ();
-                }
+            //    for (int i = 0; i < titleset.genetives.Count; i++)
+            //    {
+            //        titleset.genetives[i] = titleset.genetives[i].ToLower ();
+            //    }
 
-                titleset.genetives.Sort ();
+            //    titleset.genetives.Sort ();
 
-                for (int i = 0; i < titleset.objectivesNeutral.Count; i++)
-                {
-                    titleset.objectivesNeutral[i] = titleset.objectivesNeutral[i].ToLower ();
-                }
+            //    for (int i = 0; i < titleset.objectivesNeutral.Count; i++)
+            //    {
+            //        titleset.objectivesNeutral[i] = titleset.objectivesNeutral[i].ToLower ();
+            //    }
 
-                titleset.objectivesNeutral.Sort ();
+            //    titleset.objectivesNeutral.Sort ();
 
-                for (int i = 0; i < titleset.objectivesNeutral.Count; i++)
-                {
-                    titleset.objectivesNeutral[i] = titleset.objectivesNeutral[i].ToLower ();
-                }
+            //    for (int i = 0; i < titleset.objectivesNeutral.Count; i++)
+            //    {
+            //        titleset.objectivesNeutral[i] = titleset.objectivesNeutral[i].ToLower ();
+            //    }
 
-                titleset.objectivesNeutral.Sort ();
-            }
+            //    titleset.objectivesNeutral.Sort ();
+            //}
 
             //            this.subjectiveCons.Sort();
             //            this.subjectivePros.Sort();
-            this.subjectiveStory.Sort ();
-            this.subjectiveGeolocation.Sort ();
+            //this.subjectiveStory.Sort ();
+            //this.subjectiveGeolocation.Sort ();
 
         }
 
         public static void SaveData (SemanticData data)
         {
             data.PreSave ();
-            DataUtility.Save (Application.dataPath + "/name_data.json", data);
+            DataUtility.Save (Application.dataPath + data._fullPath, data);
         }
 
         public void PreSave ()
         {
-            Optimize (this.subjectiveStory);
-            Optimize (this.subjectiveGeolocation);
+            //Optimize (this.subjectiveStory);
+            //Optimize (this.subjectiveGeolocation);
 
             Optimize (this.vowels);
             Optimize (this.vowelPairs);
@@ -694,24 +726,27 @@
             {
                 Optimize (nameset.prefixes);
                 Optimize (nameset.sufixes);
-                Optimize (nameset.namesMale);
-                Optimize (nameset.namesFemale);
+                Optimize (nameset.names);
+                Optimize (nameset.adjectives);
+                Optimize (nameset.genetives);
+                Optimize (nameset.presets);
+                Optimize (nameset.synonyms);
 
                 nameset.concatenationRules.Sort ((x, y) => x.left.CompareTo (y.left));
             }
 
-            this.setTitles.Sort ((x, y) => x.id.CompareTo (y.id));
-            foreach (var titleset in this.setTitles)
-            {
-                Optimize (titleset.adjectives);
-                Optimize (titleset.genetives);
-                Optimize (titleset.objectivePros);
-                Optimize (titleset.objectivesNeutral);
-                Optimize (titleset.subjectivesCons);
-                Optimize (titleset.subjectivesNeutral);
-                Optimize (titleset.subjectivesPros);
+            //this.setTitles.Sort ((x, y) => x.id.CompareTo (y.id));
+            //foreach (var titleset in this.setTitles)
+            //{
+            //    Optimize (titleset.adjectives);
+            //    Optimize (titleset.genetives);
+            //    Optimize (titleset.objectivePros);
+            //    Optimize (titleset.objectivesNeutral);
+            //    Optimize (titleset.subjectivesCons);
+            //    Optimize (titleset.subjectivesNeutral);
+            //    Optimize (titleset.subjectivesPros);
 
-            }
+            //}
 
             this.setGrammars.Sort ((x, y) => x.nounSingular.CompareTo (y.nounSingular));
             foreach (var grammarset in this.setGrammars)
@@ -753,8 +788,23 @@
     [System.Serializable]
     public class NameSet
     {
-
+        #region DATA
+        //subjective
         public string id;
+
+        /// <summary>
+        /// Synonyms for the subjective.
+        /// </summary>
+        public List<string> synonyms = new List<string> ();
+
+        /// <summary>
+        /// Prefixes for concatenation with subjective (or synonym) 
+        /// </summary>
+        public List<string> subjectivePrefixes = new List<string> ();
+
+        public List<string> adjectives = new List<string> ();
+
+        public List<string> genetives = new List<string> ();
 
         /// <summary>
         /// The prefixes for pseudo names.
@@ -764,6 +814,13 @@
         /// The sufixes for pseudo names.
         /// </summary>
         public List<string> sufixes = new List<string> ();
+
+        /// <summary>
+        /// The real name database.
+        /// </summary>
+        public List<string> names = new List<string> ();
+
+        public List<string> presets = new List<string> ();
 
         /// <summary>
         /// The concatenation rules for generating pseudo names.
@@ -776,15 +833,12 @@
         public List<GrammarRule> genderConversionRules = new List<GrammarRule> ();
 
         /// <summary>
-        /// The real male name database.
+        /// List of instruction sequences used for generating a title.
         /// </summary>
-        public List<string> namesMale = new List<string> ();
+        public List<ConstructionRule> titleConstructionRules = new List<ConstructionRule> ();
+        #endregion
 
-        /// <summary>
-        /// The real female name database.
-        /// </summary>
-        public List<string> namesFemale = new List<string> ();
-
+        #region API
         /// <summary>
         /// Gets eather a random real or pseudo name.
         /// </summary>
@@ -795,12 +849,12 @@
             if (this.prefixes.Count + this.sufixes.Count == 0)
             {
                 Debug.LogError ("No prefixes or sufixes in name set " + this.id);
-                return GetName (male);
+                return GetName ();
             }
 
-            if ((this.namesMale.Count + this.namesFemale.Count == 0) || Chance.FiftyFifty)
-                return GeneratePseudoName (male);
-            return GetName (male);
+            if (Chance.FiftyFifty)
+                return GeneratePseudoName (true);
+            return GetName ();
         }
 
         /// <summary>
@@ -808,11 +862,11 @@
         /// </summary>
         /// <returns>A real name from the database.</returns>
         /// <param name="male">Should real name be male or female name.</param>
-        public string GetName (bool male = true)
+        public string GetName ()
         {
-            List<string> list = (male) ? this.namesMale : this.namesFemale;
-            if (list.Count != 0)
-                return list.GetRandom ();
+            if (this.names.Count != 0)
+                return this.names.GetRandom ();
+
             return "NULL(" + id + ")";
         }
 
@@ -932,10 +986,69 @@
             return prefix + sufix;
         }
 
-        //TODO:
-        //        public string FeminizeName(string maleName){
-        //
-        //        }
+        public string GenerateTitle ()
+        {
+            return NameSet.Construct (this, this.titleConstructionRules.GetRandom ());
+        }
+
+        #endregion
+
+        #region STATIC API
+
+        public static string Construct (NameSet set, ConstructionRule rule)
+        {
+            string result = string.Empty;
+
+            foreach (var instruction in rule.instructions)
+            {
+                switch (instruction)
+                {
+                    case ConstructionInstruction.DETERMINER:
+                        result += " the";
+                        break;
+                    case ConstructionInstruction.SEPARATOR:
+                        result += " ";
+                        break;
+                    case ConstructionInstruction.NAME_FULL:
+                        result += set.names.GetRandom ();
+                        break;
+                    case ConstructionInstruction.NAME_PARTIAL_PREFIX:
+                        result += set.prefixes.GetRandom ();
+                        break;
+                    case ConstructionInstruction.NEME_PARTIAL_SUFIX:
+                        result += set.sufixes.GetRandom ();
+                        break;
+                    case ConstructionInstruction.SUBJECTIVE_PREFIX:
+                        result += set.subjectivePrefixes.GetRandom ();
+                        break;
+                    //case ConstructionInstruction.SUBJECTIVE_ORIGINAL:
+                    //    result += set.id;
+                    //break;
+                    case ConstructionInstruction.SUBJECTIVE_ORIGINAL_OR_SYNONYM:
+                        result += set.synonyms.GetRandom ();
+                        break;
+                    case ConstructionInstruction.ADJECTIVE:
+                        result += set.adjectives.GetRandom ();
+                        break;
+                    case ConstructionInstruction.GENETIVE:
+                        result += set.genetives.GetRandom ();
+                        break;
+                    case ConstructionInstruction.PRESET:
+                        result += set.presets.GetRandom ();
+                        break;
+                    case ConstructionInstruction.PREPOSITION_OF:
+                        result += "of ";
+                        break;
+                    case ConstructionInstruction.POSSESSIVE_APOSTROPHE:
+                        result += "\'s";
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
     }
 
     [System.Serializable]
@@ -984,6 +1097,36 @@
         public char right;
         public string affix;
         public Type type;
+    }
+
+    public enum ConstructionInstruction
+    {
+        POSSESSIVE_APOSTROPHE = -3,
+        PREPOSITION_OF = -2,
+        DETERMINER = -1,
+        SEPARATOR = 0,
+
+        NAME_FULL = 1,
+        //NAME_FULL_FEMALE,
+
+        NAME_PARTIAL_PREFIX = 3,
+        NEME_PARTIAL_SUFIX = 4,
+
+        SUBJECTIVE_PREFIX = 5,
+        //SUBJECTIVE_ORIGINAL = 6,
+        SUBJECTIVE_ORIGINAL_OR_SYNONYM = 7,
+
+        ADJECTIVE = 8,
+        GENETIVE = 9,
+
+        PRESET = 10,
+    }
+
+    [System.Serializable]
+    public class ConstructionRule
+    {
+        public string name;
+        public ConstructionInstruction[] instructions;
     }
 
     [System.Serializable]
