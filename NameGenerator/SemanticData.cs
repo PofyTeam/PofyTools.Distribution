@@ -74,7 +74,7 @@
         protected Dictionary<string, GrammarSet> _setGrammars = new Dictionary<string, GrammarSet> ();
         [System.NonSerialized]
         protected List<string> _setGrammarIds = new List<string> ();
-
+        public List<string> GetAllGrammarIds () { return this._setGrammarIds; }
         [System.NonSerialized]
         protected List<string> _allAdjectives = new List<string> ();
         [System.NonSerialized]
@@ -292,6 +292,66 @@
         //    return result;
         //}
 
+        public string GetRandomOrdinalNumber (int max = 1000)
+        {
+            return (Chance.TryWithChance (0.3f)) ? GetOrdinalNumber (Random.Range (4, max + 1)) : this.numberOrdinals.GetRandom ();
+        }
+
+        public string GetAdjective (bool plural = false, bool useNumbers = true, bool usePossessiveApostrophe = true, string nameSet = "")
+        {
+            string result = string.Empty;
+
+            //Numbers
+            if (useNumbers && Chance.TryWithChance (0.3f))
+            {
+                if (plural)
+                    result += this.numberCardinals.GetRandom ();
+                else
+                    result += this.numberOrdinals.GetRandom ();
+                return result;
+            }
+
+            //Name
+            if (Chance.FiftyFifty)
+            {
+                string name = (nameSet == "") ? GetAnyName (Chance.FiftyFifty) : GetNameSet (nameSet).GetRandomName ();
+                if (!string.IsNullOrEmpty (name))
+                    result += (usePossessiveApostrophe) ? NameToAdjective (name) : name;
+                else
+                {
+                    Debug.LogError (TAG + "Empty name from GetAnyName!");
+                    result += this._allAdjectives.GetRandom ();
+                }
+            }
+            else
+            {
+                if (Chance.FiftyFifty)
+                    result += this._allAdjectives.GetRandom ();
+                else
+                    result += this.setGrammars.GetRandom ().adjectives.GetRandom ();
+            }
+
+            return result;
+        }
+
+        public string GetAdjective (string key)
+        {
+            GrammarSet set = null;
+            if (this._setGrammars.TryGetValue (key, out set))
+                return set.adjectives.GetRandom ();
+
+            return key;
+        }
+
+        public string GetPrefix (string key = "")
+        {
+
+            if (key == "")
+                return this.setGrammars.GetRandom ().nounSingular;
+
+            return key;
+        }
+
         public string GetGenetive (bool forceSingular = false, bool useOrdinals = true, string nameSet = "")
         {
             GrammarSet grammarset = null;
@@ -337,55 +397,15 @@
             return result;
         }
 
-        public string GetRandomOrdinalNumber (int max = 1000)
+
+        public string GetGenetive (string key)
         {
-            return (Chance.TryWithChance (0.3f)) ? GetOrdinalNumber (Random.Range (4, max + 1)) : this.numberOrdinals.GetRandom ();
-        }
-
-        public string GetAdjective (bool plural = false, bool useNumbers = true, bool usePossessiveApostrophe = true, string nameSet = "")
-        {
-            string result = string.Empty;
-
-            //Numbers
-            if (useNumbers && Chance.TryWithChance (0.3f))
+            GrammarSet set = null;
+            if (this._setGrammars.TryGetValue (key, out set))
             {
-                if (plural)
-                    result += this.numberCardinals.GetRandom ();
-                else
-                    result += this.numberOrdinals.GetRandom ();
-                return result;
+                return (Chance.FiftyFifty) ? (set.useDeterminer) ? "the " + set.nounSingular : set.nounSingular : set.nounPlurals.GetRandom ();
             }
-
-            //Name
-            if (Chance.FiftyFifty)
-            {
-                string name = (nameSet == "") ? GetAnyName (Chance.FiftyFifty) : GetNameSet (nameSet).GetRandomName ();
-                if (!string.IsNullOrEmpty (name))
-                    result += (usePossessiveApostrophe) ? NameToAdjective (name) : name;
-                else
-                {
-                    Debug.LogError (TAG + "Empty name from GetAnyName!");
-                    result += this._allAdjectives.GetRandom ();
-                }
-            }
-            else
-            {
-                if (Chance.FiftyFifty)
-                    result += this._allAdjectives.GetRandom ();
-                else
-                    result += this.setGrammars.GetRandom ().adjectives.GetRandom ();
-            }
-
-            return result;
-        }
-
-        public string GetPrefix ()
-        {
-            string result = string.Empty;
-
-            result = this.setGrammars.GetRandom ().nounSingular;
-
-            return result;
+            return key;
         }
 
         public string GetAnyName (bool isMale = true)
@@ -706,9 +726,6 @@
 
         public void PreSave ()
         {
-            //Optimize (this.subjectiveStory);
-            //Optimize (this.subjectiveGeolocation);
-
             Optimize (this.vowels);
             Optimize (this.vowelPairs);
 
@@ -727,26 +744,12 @@
                 Optimize (nameset.prefixes);
                 Optimize (nameset.sufixes);
                 Optimize (nameset.names);
-                Optimize (nameset.adjectives);
-                Optimize (nameset.genetives);
+                Optimize (nameset.adjectiveKeys);
                 Optimize (nameset.presets);
                 Optimize (nameset.synonyms);
 
                 nameset.concatenationRules.Sort ((x, y) => x.left.CompareTo (y.left));
             }
-
-            //this.setTitles.Sort ((x, y) => x.id.CompareTo (y.id));
-            //foreach (var titleset in this.setTitles)
-            //{
-            //    Optimize (titleset.adjectives);
-            //    Optimize (titleset.genetives);
-            //    Optimize (titleset.objectivePros);
-            //    Optimize (titleset.objectivesNeutral);
-            //    Optimize (titleset.subjectivesCons);
-            //    Optimize (titleset.subjectivesNeutral);
-            //    Optimize (titleset.subjectivesPros);
-
-            //}
 
             this.setGrammars.Sort ((x, y) => x.nounSingular.CompareTo (y.nounSingular));
             foreach (var grammarset in this.setGrammars)
@@ -800,11 +803,7 @@
         /// <summary>
         /// Prefixes for concatenation with subjective (or synonym) 
         /// </summary>
-        public List<string> subjectivePrefixes = new List<string> ();
-
-        public List<string> adjectives = new List<string> ();
-
-        public List<string> genetives = new List<string> ();
+        public List<string> adjectiveKeys = new List<string> ();
 
         /// <summary>
         /// The prefixes for pseudo names.
@@ -986,18 +985,21 @@
             return prefix + sufix;
         }
 
-        public string GenerateTitle ()
+        public string GenerateTitle (SemanticData data = null, NameSet influencer = null)
         {
-            return NameSet.Construct (this, this.titleConstructionRules.GetRandom ());
+            return NameSet.Construct (this, this.titleConstructionRules.GetRandom (), data, influencer);
         }
 
         #endregion
 
         #region STATIC API
 
-        public static string Construct (NameSet set, ConstructionRule rule)
+        public static string Construct (NameSet set, ConstructionRule rule, SemanticData data = null, NameSet influencer = null)
         {
             string result = string.Empty;
+
+            bool hasData = data != null;
+            bool hasInfluencer = influencer != null;
 
             foreach (var instruction in rule.instructions)
             {
@@ -1010,31 +1012,32 @@
                         result += " ";
                         break;
                     case ConstructionInstruction.NAME_FULL:
-                        result += set.names.GetRandom ();
+                        result += hasInfluencer && Chance.FiftyFifty ? influencer.names.GetRandom () : set.names.GetRandom ();
                         break;
                     case ConstructionInstruction.NAME_PARTIAL_PREFIX:
-                        result += set.prefixes.GetRandom ();
+                        result += hasInfluencer && Chance.FiftyFifty ? influencer.prefixes.GetRandom () : set.prefixes.GetRandom ();
                         break;
                     case ConstructionInstruction.NEME_PARTIAL_SUFIX:
-                        result += set.sufixes.GetRandom ();
+                        result += hasInfluencer && Chance.FiftyFifty ? influencer.sufixes.GetRandom () : set.sufixes.GetRandom ();
                         break;
-                    case ConstructionInstruction.SUBJECTIVE_PREFIX:
-                        result += set.subjectivePrefixes.GetRandom ();
+                    case ConstructionInstruction.ADJECTIVE_PREFIX:
+                        result += (hasData) ? data.GetAdjective (hasInfluencer && Chance.FiftyFifty ? influencer.adjectiveKeys.GetRandom () : set.adjectiveKeys.GetRandom ()) : set.adjectiveKeys.GetRandom ();
                         break;
                     //case ConstructionInstruction.SUBJECTIVE_ORIGINAL:
                     //    result += set.id;
                     //break;
                     case ConstructionInstruction.SUBJECTIVE_ORIGINAL_OR_SYNONYM:
-                        result += set.synonyms.GetRandom ();
+                        result += hasInfluencer && Chance.FiftyFifty ? influencer.synonyms.GetRandom () : set.synonyms.GetRandom ();
                         break;
                     case ConstructionInstruction.ADJECTIVE:
-                        result += set.adjectives.GetRandom ();
+                        result += (hasData) ? data.GetAdjective (hasInfluencer && Chance.FiftyFifty ? influencer.adjectiveKeys.GetRandom () : set.adjectiveKeys.GetRandom ()) : set.adjectiveKeys.GetRandom ();
                         break;
                     case ConstructionInstruction.GENETIVE:
-                        result += set.genetives.GetRandom ();
+                        result += (hasData) ? data.GetAdjective (hasInfluencer && Chance.FiftyFifty ? influencer.adjectiveKeys.GetRandom () : set.adjectiveKeys.GetRandom ()) : set.adjectiveKeys.GetRandom ();
+
                         break;
                     case ConstructionInstruction.PRESET:
-                        result += set.presets.GetRandom ();
+                        result += hasInfluencer && Chance.FiftyFifty ? influencer.presets.GetRandom () : set.presets.GetRandom ();
                         break;
                     case ConstructionInstruction.PREPOSITION_OF:
                         result += "of ";
@@ -1112,7 +1115,7 @@
         NAME_PARTIAL_PREFIX = 3,
         NEME_PARTIAL_SUFIX = 4,
 
-        SUBJECTIVE_PREFIX = 5,
+        ADJECTIVE_PREFIX = 5,
         //SUBJECTIVE_ORIGINAL = 6,
         SUBJECTIVE_ORIGINAL_OR_SYNONYM = 7,
 
