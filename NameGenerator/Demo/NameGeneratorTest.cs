@@ -16,7 +16,7 @@ public class NameGeneratorTest : MonoBehaviour
     public Dialog dialog;
 
     [Header ("UI")]
-    public RectTransform leftTerms, rightTerms;
+    public RectTransform availableSets, selectedSets;
     public Dropdown dropdownNamesets;
     public Text label;
     public Text input;
@@ -25,13 +25,15 @@ public class NameGeneratorTest : MonoBehaviour
     public SemanticData data;
 
     [Header ("Influncer")]
-    public NameSet influencer;
+    public NameSet influencerOne;
+    public NameSet influencerTwo;
 
+    private InfluenceSet _influenceSet;
     void Awake ()
     {
         Load ();
         this.data.Initialize ();
-
+        this._influenceSet = new InfluenceSet (this.influencerOne, influencerTwo);
         this.dropdownNamesets.onValueChanged.AddListener (this.OnDropdownValueChanged);
         OnDropdownValueChanged (0);
         //RefeshAll ();
@@ -44,6 +46,14 @@ public class NameGeneratorTest : MonoBehaviour
             var ns = new NameSet ();
             ns.id = this.input.text;
             this.data.setNames.Add (ns);
+
+            ns.titleConstructionRules.Add (ConstructionRule.PresetRule);
+            ns.titleConstructionRules.Add (ConstructionRule.AdjectivePrefixSynonymRule);
+            ns.titleConstructionRules.Add (ConstructionRule.AdjectiveSynonymRule);
+            ns.titleConstructionRules.Add (ConstructionRule.SynonymAdjectiveRule);
+            ns.titleConstructionRules.Add (ConstructionRule.SynonymGenetiveRule);
+            //TODO: Add name instrucitons
+
 
             this._currentNameSet = ns;
 
@@ -66,26 +76,6 @@ public class NameGeneratorTest : MonoBehaviour
             RefeshAll ();
         }
     }
-
-    public void AskRemoveSynonym (string synonym)
-    {
-        this._cacheSynonym = synonym;
-
-        this.dialog.ShowDialog ("Remove Synonym", "Are you sure you want to delete \"" + synonym + "\"?", this.RemoveChachedSynonym);
-    }
-    private string _cacheSynonym;
-
-    public void RemoveChachedSynonym ()
-    {
-        RemoveSynonym (this._cacheSynonym);
-    }
-
-    public void RemoveSynonym (string synonym)
-    {
-        this._currentNameSet.synonyms.Remove (synonym);
-        Save ();
-        RefeshAll ();
-    }
     #endregion
 
     #region Presets
@@ -102,25 +92,13 @@ public class NameGeneratorTest : MonoBehaviour
             RefeshAll ();
         }
     }
-    public void AskRemovePreset (string preset)
-    {
-        this._cachePreset = preset;
 
-        this.dialog.ShowDialog ("Remove Synonym", "Are you sure you want to delete \"" + preset + "\"?", this.RemoveChachedPreset);
-    }
-    private string _cachePreset;
+    #endregion
 
-    public void RemoveChachedPreset ()
-    {
-        RemovePreset (this._cachePreset);
-    }
+    #region Names
 
-    public void RemovePreset (string preset)
-    {
-        this._currentNameSet.presets.Remove (preset);
-        Save ();
-        RefeshAll ();
-    }
+    public RectTransform namePrefix, nameSufix, nameFull;
+
     #endregion
 
     void OnDropdownValueChanged (int index)
@@ -132,6 +110,7 @@ public class NameGeneratorTest : MonoBehaviour
 
     private NameSet _currentNameSet;
 
+    #region API
     void RefeshAll ()
     {
         ClearAll ();
@@ -140,10 +119,14 @@ public class NameGeneratorTest : MonoBehaviour
 
     void ClearAll ()
     {
-        this.leftTerms.ClearChildren ();
-        this.rightTerms.ClearChildren ();
+        this.availableSets.ClearChildren ();
+        this.selectedSets.ClearChildren ();
         this.synonyms.ClearChildren ();
         this.presets.ClearChildren ();
+
+        this.nameFull.ClearChildren ();
+        this.namePrefix.ClearChildren ();
+        this.nameSufix.ClearChildren ();
 
         this.dropdownNamesets.ClearOptions ();
     }
@@ -171,44 +154,99 @@ public class NameGeneratorTest : MonoBehaviour
         foreach (var term in notUsing)
         {
             Button button = Instantiate<Button> (this.buttonPrefab);
-            button.image.rectTransform.SetParent (this.leftTerms, false);
+            button.image.rectTransform.SetParent (this.availableSets, false);
             button.GetComponentInChildren<Text> ().text = term;
             button.onClick.AddListener (delegate () { this._currentNameSet.adjectiveKeys.Add (term); Save (); RefeshAll (); });
         }
 
+        //Adjective Keys (Grammer Set)
         foreach (var term in this._currentNameSet.adjectiveKeys)
         {
             Button button = Instantiate<Button> (this.buttonPrefab);
-            button.image.rectTransform.SetParent (this.rightTerms, false);
+            button.image.rectTransform.SetParent (this.selectedSets, false);
             button.GetComponentInChildren<Text> ().text = term;
             button.onClick.AddListener (delegate () { this._currentNameSet.adjectiveKeys.Remove (term); Save (); RefeshAll (); });
 
         }
 
+        //Synonyms
         foreach (var synonym in this._currentNameSet.synonyms)
         {
             Button button = Instantiate<Button> (this.buttonPrefab);
             button.image.rectTransform.SetParent (this.synonyms, false);
             button.GetComponentInChildren<Text> ().text = synonym;
-            button.onClick.AddListener (delegate () { AskRemoveSynonym (synonym); });
+            button.onClick.AddListener (delegate () { AskRemove (synonym, this._currentNameSet.synonyms); });
 
         }
 
+        //Title Presets
         foreach (var preset in this._currentNameSet.presets)
         {
             Button button = Instantiate<Button> (this.buttonPrefab);
             button.image.rectTransform.SetParent (this.presets, false);
             button.GetComponentInChildren<Text> ().text = preset;
-            button.onClick.AddListener (delegate () { AskRemovePreset (preset); });
+            button.onClick.AddListener (delegate () { AskRemove (preset, this._currentNameSet.presets); });
 
         }
+
+        //Name Prefix
+        foreach (var namePrefix in this._currentNameSet.prefixes)
+        {
+            Button button = Instantiate<Button> (this.buttonPrefab);
+            button.image.rectTransform.SetParent (this.namePrefix, false);
+            button.GetComponentInChildren<Text> ().text = namePrefix;
+            button.onClick.AddListener (delegate () { AskRemove (namePrefix, this._currentNameSet.prefixes); });
+        }
+
+        //Name Sufix
+        foreach (var nameSufix in this._currentNameSet.sufixes)
+        {
+            Button button = Instantiate<Button> (this.buttonPrefab);
+            button.image.rectTransform.SetParent (this.nameSufix, false);
+            button.GetComponentInChildren<Text> ().text = nameSufix;
+            button.onClick.AddListener (delegate () { AskRemove (nameSufix, this._currentNameSet.sufixes); });
+        }
+
+        //Full Names
+        foreach (var nameFull in this._currentNameSet.names)
+        {
+            Button button = Instantiate<Button> (this.buttonPrefab);
+            button.image.rectTransform.SetParent (this.nameFull, false);
+            button.GetComponentInChildren<Text> ().text = nameFull;
+            button.onClick.AddListener (delegate () { AskRemove (nameFull, this._currentNameSet.names); });
+        }
+
     }
+
+    public void AskRemove (string key, List<string> list)
+    {
+        this._cacheString = key;
+        this._cacheList = list;
+        this.dialog.ShowDialog ("Remove", "Are you sure you want to delete \"" + key + "\"?", this.RemoveChached);
+    }
+
+    private string _cacheString;
+    private List<string> _cacheList;
+
+    public void RemoveChached ()
+    {
+        RemoveFrom (this._cacheString, this._cacheList);
+    }
+
+    public void RemoveFrom (string toRemove, List<string> from)
+    {
+        from.Remove (toRemove);
+        Save ();
+        RefeshAll ();
+    }
+
+    #endregion
 
     public void GenerateTitle ()
     {
         if (this._currentNameSet != null)
         {
-            this.label.text = this._currentNameSet.GenerateTitle (this.data);
+            this.label.text = this._currentNameSet.GenerateTitle (this.data, this._influenceSet);
         }
     }
 
@@ -219,6 +257,7 @@ public class NameGeneratorTest : MonoBehaviour
         {
             this._currentNameSet.presets.Add (this.label.text);
             Save ();
+            RefeshAll ();
         }
     }
 

@@ -66,11 +66,6 @@
         protected List<string> _setNameIds = new List<string> ();
 
         [System.NonSerialized]
-        protected Dictionary<string, TitleSet> _setTitles = new Dictionary<string, TitleSet> ();
-        [System.NonSerialized]
-        protected List<string> _setTitleIds = new List<string> ();
-
-        [System.NonSerialized]
         protected Dictionary<string, GrammarSet> _setGrammars = new Dictionary<string, GrammarSet> ();
         [System.NonSerialized]
         protected List<string> _setGrammarIds = new List<string> ();
@@ -88,8 +83,8 @@
             this._setNames.Clear ();
             this._setNameIds.Clear ();
 
-            this._setTitles.Clear ();
-            this._setTitleIds.Clear ();
+            //this._setTitles.Clear ();
+            //this._setTitleIds.Clear ();
 
             this._setGrammars.Clear ();
             this._setGrammarIds.Clear ();
@@ -216,7 +211,6 @@
 
         //
 
-
         public NameSet GetNameSet (string id)
         {
             NameSet nameset = null;
@@ -224,12 +218,12 @@
             return nameset;
         }
 
-        public TitleSet GetTitleSet (string id)
-        {
-            TitleSet titleset = null;
-            this._setTitles.TryGetValue (id, out titleset);
-            return titleset;
-        }
+        //public TitleSet GetTitleSet (string id)
+        //{
+        //    TitleSet titleset = null;
+        //    this._setTitles.TryGetValue (id, out titleset);
+        //    return titleset;
+        //}
 
         //public string GenerateStoryName (bool useAdjective = true, bool useSubjective = true, bool useGenetive = true)
         //{
@@ -396,7 +390,6 @@
             }
             return result;
         }
-
 
         public string GetGenetive (string key)
         {
@@ -748,7 +741,7 @@
                 Optimize (nameset.presets);
                 Optimize (nameset.synonyms);
 
-                nameset.concatenationRules.Sort ((x, y) => x.left.CompareTo (y.left));
+                nameset.concatenationRules.Sort ((x, y) => x.replace.CompareTo (y.replace));
             }
 
             this.setGrammars.Sort ((x, y) => x.nounSingular.CompareTo (y.nounSingular));
@@ -851,8 +844,6 @@
                 return GetName ();
             }
 
-            if (Chance.FiftyFifty)
-                return GeneratePseudoName (true);
             return GetName ();
         }
 
@@ -869,175 +860,57 @@
             return "NULL(" + id + ")";
         }
 
-        /// <summary>
-        /// Generates a random pseudo name by concatenating prefix and sufix and by applying grammer rules.
-        /// </summary>
-        /// <returns>A pseudo name.</returns>
-        /// <param name="male">Should pseudo name be male or female name.</param>
-        public string GeneratePseudoName (bool male = true)
+        public string GenerateTitle (SemanticData data = null, InfluenceSet influenceSet = null)
         {
-            //string result = string.Empty;
-
-            string prefix = this.prefixes.GetRandom ();
-            string sufix = this.sufixes.GetRandom ();
-
-            char prefixEnd = default (char);
-            char sufixStart = default (char);
-
-            bool dirty = this.concatenationRules.Count > 0;
-            while (dirty)
-            {
-                dirty = false;
-                foreach (var rule in this.concatenationRules)
-                {
-                    if (prefix.Length == 0 || sufix.Length == 0)
-                        break;
-                    prefixEnd = prefix[prefix.Length - 1];
-                    sufixStart = sufix[0];
-
-                    if (rule.left == prefixEnd && rule.right == sufixStart)
-                    {
-                        switch (rule.type)
-                        {
-                            case GrammarRule.Type.RemoveLeft:
-                                prefix = prefix.Remove (prefix.Length - 1, 1);
-                                break;
-                            case GrammarRule.Type.RemoveRight:
-                                sufix = sufix.Remove (0, 1);
-                                break;
-                            case GrammarRule.Type.ReplaceLeft:
-                                prefix = prefix.Remove (prefix.Length - 1);
-                                prefix = prefix.Insert (prefix.Length - 1, rule.affix);
-                                break;
-                            case GrammarRule.Type.ReplaceRight:
-                                sufix = sufix.Remove (0);
-                                sufix = sufix.Insert (0, rule.affix);
-                                break;
-                            case GrammarRule.Type.Insert:
-                                prefix += rule.affix;
-                                break;
-                            case GrammarRule.Type.Append:
-                                sufix += rule.affix;
-                                break;
-                            case GrammarRule.Type.MergeInto:
-                                prefix = prefix.Remove (prefix.Length - 1);
-                                sufix = sufix.Remove (0);
-                                prefix += rule.affix;
-                                break;
-                            default:
-                                break;
-                        }
-                        dirty = true;
-                        break;
-                    }
-                }
-            }
-
-            dirty = !male && this.genderConversionRules.Count > 0;
-            while (dirty)
-            {
-                dirty = false;
-                foreach (var rule in this.genderConversionRules)
-                {
-                    if (prefix.Length == 0 || sufix.Length == 0)
-                        break;
-                    prefixEnd = prefix[prefix.Length - 1];
-                    sufixStart = sufix[0];
-
-                    if (rule.left == prefixEnd && rule.right == sufixStart)
-                    {
-                        switch (rule.type)
-                        {
-                            case GrammarRule.Type.RemoveLeft:
-                                prefix = prefix.Remove (prefix.Length - 1, 1);
-                                break;
-                            case GrammarRule.Type.RemoveRight:
-                                sufix = sufix.Remove (0, 1);
-                                break;
-                            case GrammarRule.Type.ReplaceLeft:
-                                prefix = prefix.Remove (prefix.Length - 1);
-                                prefix = prefix.Insert (prefix.Length - 1, rule.affix);
-                                break;
-                            case GrammarRule.Type.ReplaceRight:
-                                sufix = sufix.Remove (0);
-                                sufix = sufix.Insert (0, rule.affix);
-                                break;
-                            case GrammarRule.Type.Insert:
-                                prefix += rule.affix;
-                                break;
-                            case GrammarRule.Type.Append:
-                                sufix += rule.affix;
-                                break;
-                            case GrammarRule.Type.MergeInto:
-                                prefix = prefix.Remove (prefix.Length - 1);
-                                sufix = sufix.Remove (0);
-                                prefix += rule.affix;
-                                break;
-                            default:
-                                break;
-                        }
-                        dirty = true;
-                        break;
-                    }
-                }
-            }
-
-            return prefix + sufix;
-        }
-
-        public string GenerateTitle (SemanticData data = null, NameSet influencer = null)
-        {
-            return NameSet.Construct (this, this.titleConstructionRules.GetRandom (), data, influencer);
+            return NameSet.Construct (this, this.titleConstructionRules.GetRandom (), data, influenceSet);
         }
 
         #endregion
 
         #region STATIC API
 
-        public static string Construct (NameSet set, ConstructionRule rule, SemanticData data = null, NameSet influencer = null)
+        public static string Construct (NameSet set, ConstructionRule rule, SemanticData data = null, InfluenceSet influenceSet = null)
         {
             string result = string.Empty;
 
             bool hasData = data != null;
-            bool hasInfluencer = influencer != null;
+            bool hasInfluenceSet = influenceSet != null;
 
             foreach (var instruction in rule.instructions)
             {
                 switch (instruction)
                 {
                     case ConstructionInstruction.DETERMINER:
-                        result += " the";
+                        result += "the ";
                         break;
                     case ConstructionInstruction.SEPARATOR:
                         result += " ";
                         break;
                     case ConstructionInstruction.NAME_FULL:
-                        result += hasInfluencer && Chance.FiftyFifty ? influencer.names.GetRandom () : set.names.GetRandom ();
+                        result += (hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasName) ? influenceSet.Name : set.names.GetRandom ();
                         break;
                     case ConstructionInstruction.NAME_PARTIAL_PREFIX:
-                        result += hasInfluencer && Chance.FiftyFifty ? influencer.prefixes.GetRandom () : set.prefixes.GetRandom ();
+                        result += hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasPrefix ? influenceSet.Prefix : set.prefixes.GetRandom ();
                         break;
                     case ConstructionInstruction.NEME_PARTIAL_SUFIX:
-                        result += hasInfluencer && Chance.FiftyFifty ? influencer.sufixes.GetRandom () : set.sufixes.GetRandom ();
+                        result += hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasSufix ? influenceSet.Sufix : set.sufixes.GetRandom ();
                         break;
-                    case ConstructionInstruction.ADJECTIVE_PREFIX:
-                        result += (hasData) ? data.GetAdjective (hasInfluencer && Chance.FiftyFifty ? influencer.adjectiveKeys.GetRandom () : set.adjectiveKeys.GetRandom ()) : set.adjectiveKeys.GetRandom ();
-                        break;
-                    //case ConstructionInstruction.SUBJECTIVE_ORIGINAL:
-                    //    result += set.id;
-                    //break;
                     case ConstructionInstruction.SUBJECTIVE_ORIGINAL_OR_SYNONYM:
-                        result += hasInfluencer && Chance.FiftyFifty ? influencer.synonyms.GetRandom () : set.synonyms.GetRandom ();
+                        result += hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasSynonym ? influenceSet.Synonym : set.synonyms.GetRandom ();
                         break;
                     case ConstructionInstruction.ADJECTIVE:
-                        result += (hasData) ? data.GetAdjective (hasInfluencer && Chance.FiftyFifty ? influencer.adjectiveKeys.GetRandom () : set.adjectiveKeys.GetRandom ()) : set.adjectiveKeys.GetRandom ();
+                        //Consturcts adjective or fallsback to singular noun
+                        result += (hasData) ?
+                            data.GetAdjective (hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasAdjectiveKey ?
+                                influenceSet.AdjectiveKey : set.adjectiveKeys.GetRandom ())
+                            : set.adjectiveKeys.GetRandom ();
                         break;
                     case ConstructionInstruction.GENETIVE:
-                        result += (hasData) ? data.GetAdjective (hasInfluencer && Chance.FiftyFifty ? influencer.adjectiveKeys.GetRandom () : set.adjectiveKeys.GetRandom ()) : set.adjectiveKeys.GetRandom ();
-
+                        //Using only singular noun
+                        result += (hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasAdjectiveKey) ? influenceSet.AdjectiveKey : set.adjectiveKeys.GetRandom ();
                         break;
                     case ConstructionInstruction.PRESET:
-                        result += hasInfluencer && Chance.FiftyFifty ? influencer.presets.GetRandom () : set.presets.GetRandom ();
+                        result += hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasPreset ? influenceSet.Preset : set.presets.GetRandom ();
                         break;
                     case ConstructionInstruction.PREPOSITION_OF:
                         result += "of ";
@@ -1048,29 +921,230 @@
                 }
             }
 
+            foreach (var concatenationRule in set.concatenationRules)
+            {
+                result = result.Replace (concatenationRule.replace, concatenationRule.with);
+            }
+
             return result;
         }
 
         #endregion
     }
 
-    [System.Serializable]
-    public class TitleSet
+    public class InfluenceSet
     {
-        public string id;
-        public string opposingId;
+        public InfluenceSet () { this._nameSets = new List<NameSet> (); }
+        public InfluenceSet (params NameSet[] args) { this._nameSets = new List<NameSet> (args); }
+        public InfluenceSet (List<NameSet> namesets) { this._nameSets = new List<NameSet> (namesets); }
 
-        public List<string> adjectives = new List<string> ();
+        protected List<NameSet> _nameSets;
 
-        public List<string> objectivePros = new List<string> ();
-        public List<string> objectivesNeutral = new List<string> ();
+        #region API
 
-        public List<string> subjectivesPros = new List<string> ();
-        public List<string> subjectivesCons = new List<string> ();
-        public List<string> subjectivesNeutral = new List<string> ();
+        public void AddNameSet (NameSet nameset)
+        {
+            if (!this._nameSets.Contains (nameset))
+            {
+                this._nameSets.Add (nameset);
+            }
+        }
 
-        public List<string> genetives = new List<string> ();
+        public bool RemoveNameSet (NameSet nameset)
+        {
+            return this._nameSets.Remove (nameset);
+        }
+
+        public string Synonym
+        {
+            get
+            {
+                NameSet set = null;
+                do
+                {
+                    set = this._nameSets.GetRandom ();
+                }
+                while (set.synonyms.Count == 0);
+
+                return set.synonyms.GetRandom ();
+            }
+        }
+
+        public bool HasSynonym
+        {
+            get
+            {
+                foreach (var nameset in this._nameSets)
+                {
+                    if (nameset.synonyms.Count > 0)
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        public string AdjectiveKey
+        {
+            get
+            {
+                NameSet set = null;
+                do
+                {
+                    set = this._nameSets.GetRandom ();
+                }
+                while (set.adjectiveKeys.Count == 0);
+
+                return set.adjectiveKeys.GetRandom ();
+            }
+        }
+
+        public bool HasAdjectiveKey
+        {
+            get
+            {
+                foreach (var nameset in this._nameSets)
+                {
+                    if (nameset.adjectiveKeys.Count > 0)
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        public string Prefix
+        {
+            get
+            {
+                NameSet set = null;
+                do
+                {
+                    set = this._nameSets.GetRandom ();
+                }
+                while (set.prefixes.Count == 0);
+
+                return set.prefixes.GetRandom ();
+            }
+        }
+
+        public bool HasPrefix
+        {
+            get
+            {
+                foreach (var nameset in this._nameSets)
+                {
+                    if (nameset.prefixes.Count > 0)
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        public string Sufix
+        {
+            get
+            {
+                NameSet set = null;
+                do
+                {
+                    set = this._nameSets.GetRandom ();
+                }
+                while (set.sufixes.Count == 0);
+
+                return set.sufixes.GetRandom ();
+            }
+        }
+
+        public bool HasSufix
+        {
+            get
+            {
+                foreach (var nameset in this._nameSets)
+                {
+                    if (nameset.sufixes.Count > 0)
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                NameSet set = null;
+                do
+                {
+                    set = this._nameSets.GetRandom ();
+                }
+                while (set.names.Count == 0);
+
+                return set.names.GetRandom ();
+            }
+        }
+
+        public bool HasName
+        {
+            get
+            {
+                foreach (var nameset in this._nameSets)
+                {
+                    if (nameset.names.Count > 0)
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        public string Preset
+        {
+            get
+            {
+                NameSet set = null;
+                do
+                {
+                    set = this._nameSets.GetRandom ();
+                }
+                while (set.presets.Count == 0);
+
+                return set.presets.GetRandom ();
+            }
+        }
+
+        public bool HasPreset
+        {
+            get
+            {
+                foreach (var nameset in this._nameSets)
+                {
+                    if (nameset.presets.Count > 0)
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        #endregion
+
     }
+
+
+    //[System.Serializable]
+    //public class TitleSet
+    //{
+    //    public string id;
+    //    public string opposingId;
+
+    //    public List<string> adjectives = new List<string> ();
+
+    //    public List<string> objectivePros = new List<string> ();
+    //    public List<string> objectivesNeutral = new List<string> ();
+
+    //    public List<string> subjectivesPros = new List<string> ();
+    //    public List<string> subjectivesCons = new List<string> ();
+    //    public List<string> subjectivesNeutral = new List<string> ();
+
+    //    public List<string> genetives = new List<string> ();
+    //}
 
     [System.Serializable]
     public class GrammarSet
@@ -1085,21 +1159,22 @@
     [System.Serializable]
     public class GrammarRule
     {
-        public enum Type : int
-        {
-            RemoveLeft,
-            RemoveRight,
-            ReplaceLeft,
-            ReplaceRight,
-            Insert,
-            Append,
-            MergeInto,
-        }
+        //public enum Type : int
+        //{
+        //    RemoveLeft,
+        //    RemoveRight,
+        //    ReplaceLeft,
+        //    ReplaceRight,
+        //    Insert,
+        //    Append,
+        //    MergeInto,
+        //}
 
-        public char left;
-        public char right;
-        public string affix;
-        public Type type;
+        //public char left;
+        //public char right;
+        //public string affix;
+        //public Type type;
+        public string replace, with;
     }
 
     public enum ConstructionInstruction
@@ -1115,7 +1190,7 @@
         NAME_PARTIAL_PREFIX = 3,
         NEME_PARTIAL_SUFIX = 4,
 
-        ADJECTIVE_PREFIX = 5,
+        //ADJECTIVE_PREFIX = 5,
         //SUBJECTIVE_ORIGINAL = 6,
         SUBJECTIVE_ORIGINAL_OR_SYNONYM = 7,
 
@@ -1130,6 +1205,96 @@
     {
         public string name;
         public ConstructionInstruction[] instructions;
+
+        public static ConstructionRule PresetRule
+        {
+            get
+            {
+                return new ConstructionRule
+                {
+                    name = "Preset",
+                    instructions = new ConstructionInstruction[] { ConstructionInstruction.PRESET }
+                };
+            }
+        }
+
+        public static ConstructionRule AdjectivePrefixSynonymRule
+        {
+            get
+            {
+                return new ConstructionRule
+                {
+                    name = "AdjectivePrefix-Synonym",
+                    instructions = new ConstructionInstruction[] { ConstructionInstruction.ADJECTIVE, ConstructionInstruction.SUBJECTIVE_ORIGINAL_OR_SYNONYM }
+                };
+            }
+        }
+
+        public static ConstructionRule AdjectiveSynonymRule
+        {
+            get
+            {
+                return new ConstructionRule
+                {
+                    name = "Adjective-Synonym",
+                    instructions = new ConstructionInstruction[] { ConstructionInstruction.ADJECTIVE, ConstructionInstruction.SEPARATOR, ConstructionInstruction.SUBJECTIVE_ORIGINAL_OR_SYNONYM }
+                };
+            }
+        }
+
+        public static ConstructionRule SynonymGenetiveRule
+        {
+            get
+            {
+                return new ConstructionRule
+                {
+                    name = "Synonym-Genetive",
+                    instructions = new ConstructionInstruction[] {
+                        ConstructionInstruction.SUBJECTIVE_ORIGINAL_OR_SYNONYM,
+                        ConstructionInstruction.SEPARATOR,
+                        ConstructionInstruction.PREPOSITION_OF,
+                        ConstructionInstruction.DETERMINER,
+                        ConstructionInstruction.GENETIVE
+                    }
+                };
+            }
+        }
+
+        public static ConstructionRule SynonymAdjectiveRule
+        {
+            get
+            {
+                return new ConstructionRule
+                {
+                    name = "Synonym-Adjective",
+                    instructions = new ConstructionInstruction[] {
+                        ConstructionInstruction.SUBJECTIVE_ORIGINAL_OR_SYNONYM,
+                        ConstructionInstruction.SEPARATOR,
+                        ConstructionInstruction.PREPOSITION_OF,
+                        ConstructionInstruction.DETERMINER,
+                        ConstructionInstruction.ADJECTIVE
+                    }
+                };
+            }
+        }
+
+        public static ConstructionRule GenetiveSynonymRule
+        {
+            get
+            {
+                return new ConstructionRule
+                {
+                    name = "Synonym-Adjective",
+                    instructions = new ConstructionInstruction[] {
+                        ConstructionInstruction.GENETIVE,
+                        ConstructionInstruction.POSSESSIVE_APOSTROPHE,
+                        ConstructionInstruction.SEPARATOR,
+                        ConstructionInstruction.SUBJECTIVE_ORIGINAL_OR_SYNONYM,
+                    }
+                };
+            }
+        }
+
     }
 
     [System.Serializable]
@@ -1138,26 +1303,6 @@
         public string noun;
 
         public List<string> adjectives;
-    }
-
-    public class Adjective
-    {
-
-    }
-
-    public class Noun
-    {
-
-    }
-
-    public class Verb
-    {
-
-    }
-
-    public class Adverb
-    {
-
     }
 
 }
