@@ -24,6 +24,12 @@
             this._filteredEvents = new List<TimeEvent> (initialCapacity / 2 + 1);
         }
 
+        public Timeline(int initialCapacity, IEqualityComparer<U> equalityComparer)
+        {
+            this._events = new List<TimeEvent>(initialCapacity);
+            this._lastEventOfType = new Dictionary<U, TimeEvent>(10, equalityComparer);
+            this._filteredEvents = new List<TimeEvent>(initialCapacity / 2 + 1);
+        }
         #endregion
 
         #region Add/Remove Events

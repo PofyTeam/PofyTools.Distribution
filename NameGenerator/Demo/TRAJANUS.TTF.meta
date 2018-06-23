@@ -3,8 +3,9 @@ guid: e5efd7e677d1d8b438d59aa256fe09d2
 timeCreated: 1500194779
 licenseType: Free
 TrueTypeFontImporter:
+  externalObjects: {}
   serializedVersion: 4
-  fontSize: 16
+  fontSize: 48
   forceTextureCase: -2
   characterSpacing: 0
   characterPadding: 1
@@ -14,8 +15,9 @@ TrueTypeFontImporter:
   - Trajanus Roman
   fallbackFontReferences: []
   customCharacters: 
-  fontRenderingMode: 0
+  fontRenderingMode: 3
   ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
