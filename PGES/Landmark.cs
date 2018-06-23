@@ -34,8 +34,8 @@ namespace PofyTools
 		protected Range _settlerCount = default(Range);
 
 		public int settlerCount {
-			get{ return (int)this._settlerCount.current; }
-			set{ this._settlerCount.current = value; }
+			get{ return (int)this._settlerCount.Current; }
+			set{ this._settlerCount.Current = value; }
 		}
 
 		protected float _unityFactor;
@@ -64,19 +64,19 @@ namespace PofyTools
 		[ContextMenu ("Initialize")]
 		public virtual void Initialize ()
 		{
-			this.storeCount.current = this.storeCount.IntRandom;
-			Debug.Log ("Store Count: " + this.storeCount.current);
-			this.resourceFactor.current = this.resourceFactor.Random;
-			Debug.Log ("Resource Factor: " + this.resourceFactor.current);
-			this.influenceFactor.current = this.resourceFactor.Random;
-			Debug.Log ("Influence Factor: " + this.influenceFactor.current);
+			this.storeCount.Current = this.storeCount.IntRandom;
+			Debug.Log ("Store Count: " + this.storeCount.Current);
+			this.resourceFactor.Current = this.resourceFactor.Random;
+			Debug.Log ("Resource Factor: " + this.resourceFactor.Current);
+			this.influenceFactor.Current = this.resourceFactor.Random;
+			Debug.Log ("Influence Factor: " + this.influenceFactor.Current);
 
 			//for every store 10 settlers
-			this._settlerCount = new Range (0, (int)this.storeCount.current * 10 + 2);
-			this._settlerCount.current = this._settlerCount.IntRandom;
-			Debug.Log ("Settlers Count: " + this._settlerCount.current);
+			this._settlerCount = new Range (0, (int)this.storeCount.Current * 10 + 2);
+			this._settlerCount.Current = this._settlerCount.IntRandom;
+			Debug.Log ("Settlers Count: " + this._settlerCount.Current);
 
-			if (_settlerCount.current != 0) {
+			if (_settlerCount.Current != 0) {
 				Recalculate ();
 			}
 
@@ -85,17 +85,17 @@ namespace PofyTools
 
 		public void Recalculate ()
 		{
-			this._unityBias = Math.EvaluateConcave (a: 0.5f, b: 0.5f, t: this.influenceFactor.current);
+			this._unityBias = Math.EvaluateConcave (a: 0.5f, b: 0.5f, t: this.influenceFactor.Current);
 			Debug.Log ("Unity Bias: " + this._unityBias);
-			this._unityChance = 1 - Math.EvaluateLog (a: 1, n: 1, t: this._settlerCount.current);
+			this._unityChance = 1 - Math.EvaluateLog (a: 1, n: 1, t: this._settlerCount.Current);
 			Debug.Log ("Unity Chance: " + this._unityChance);
 			this._unityFactor = Mathf.Clamp01 (Random.Range (this._unityBias, this._unityBias + this._unityChance));
 			Debug.Log ("Unity Factor: " + this._unityFactor);
-			this._influenceRadius = this._settlerCount.current * this.influenceFactor.current * this._unityFactor * 10;
+			this._influenceRadius = this._settlerCount.Current * this.influenceFactor.Current * this._unityFactor * 10;
 			Debug.Log ("Influence Radius: " + this._influenceRadius);
-			this._defensePoints = (int)(this._settlerCount.current * this.resourceFactor.current * this._unityFactor * 10);
+			this._defensePoints = (int)(this._settlerCount.Current * this.resourceFactor.Current * this._unityFactor * 10);
 			Debug.Log ("Defense Points: " + this._defensePoints);
-			this._invasionPoints = (int)(this._defensePoints * this.influenceFactor.current);
+			this._invasionPoints = (int)(this._defensePoints * this.influenceFactor.Current);
 			Debug.Log ("Invasion Points: " + this._invasionPoints);
 		}
 
@@ -188,16 +188,16 @@ namespace PofyTools
 			this._invasionPoints -= other.defensePoints;
 			int aquiredSettlers = 0;
 
-			if (other.settlerCount > this._settlerCount.current)
+			if (other.settlerCount > this._settlerCount.Current)
 				aquiredSettlers = (int)(other.settlerCount / 3);
-			else if (other.settlerCount == (int)this._settlerCount.current)
+			else if (other.settlerCount == (int)this._settlerCount.Current)
 				aquiredSettlers = (int)(other.settlerCount / 2);
 			else
 				aquiredSettlers = (int)(other.settlerCount);
 
 
-			this._settlerCount.current += aquiredSettlers;
-			this.resourceFactor.current += other.resourceFactor.current / this._settlerCount.current; 
+			this._settlerCount.Current += aquiredSettlers;
+			this.resourceFactor.Current += other.resourceFactor.Current / this._settlerCount.Current; 
 			other._invadedBy = this;
 			other.state = State.Invaded;
 			other._influenceRadius = 0;

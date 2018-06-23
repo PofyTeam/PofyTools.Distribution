@@ -607,17 +607,17 @@
 
         public bool Initialize ()
         {
-            if (!this.isInitialized)
+            if (!this.IsInitialized)
             {
                 SemanticData.LoadData (this);
                 CreateRuntimeCollections ();
-                this.isInitialized = true;
+                this.IsInitialized = true;
                 return true;
             }
             return false;
         }
 
-        public bool isInitialized
+        public bool IsInitialized
         {
             get;
             protected set;
