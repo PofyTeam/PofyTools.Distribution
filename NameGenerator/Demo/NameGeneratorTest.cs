@@ -5,6 +5,7 @@ using PofyTools.NameGenerator;
 using UnityEngine.UI;
 using PofyTools;
 using PofyTools.Distribution;
+using Extensions;
 
 public class NameGeneratorTest : MonoBehaviour
 {

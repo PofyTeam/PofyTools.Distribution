@@ -7,6 +7,8 @@
     using System.Text;
     using System.Globalization;
     using PofyTools.Distribution;
+    using Extensions;
+    using PofyTools.Data;
 
     [System.Serializable]
     public class SemanticData : IInitializable
