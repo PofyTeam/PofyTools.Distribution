@@ -17,87 +17,104 @@
 
         #region Constructors
 
-        public SemanticData () { }
+        public SemanticData() { }
 
-        public SemanticData (string fullPath)
+        public SemanticData(string path, string filename, bool scramble = false, bool encode = false, string extension = "")
         {
-            this._fullPath = fullPath;
+            this._path = path;
+            this._filename = filename;
+            this._scrable = scramble;
+            this._encode = encode;
+            this._extension = extension;
         }
 
         #endregion
 
         #region Serializable Data
 
-        [Header ("Database Version")]
+        [Header("Database Version")]
         public string dataVersion = "0.0";
 
-        [Header ("Name Sets")]
-        public List<NameSet> setNames = new List<NameSet> ();
+        [Header("Name Sets")]
+        public List<NameSet> setNames = new List<NameSet>();
         //[Header ("Title Sets")]
         //public List<TitleSet> setTitles = new List<TitleSet> ();
-        [Header ("Grammar Sets")]
-        public List<GrammarSet> setGrammars = new List<GrammarSet> ();
+        [Header("Grammar Sets")]
+        public List<GrammarSet> setGrammars = new List<GrammarSet>();
 
-        [Header ("Syllable Generator")]
-        public List<string> vowels = new List<string> ();
-        public List<string> vowelPairs = new List<string> ();
+        [Header("Syllable Generator")]
+        public List<string> vowels = new List<string>();
+        public List<string> vowelPairs = new List<string>();
 
-        public List<string> consonantStart = new List<string> ();
-        public List<string> consonantOpen = new List<string> ();
-        public List<string> consonantClose = new List<string> ();
+        public List<string> consonantStart = new List<string>();
+        public List<string> consonantOpen = new List<string>();
+        public List<string> consonantClose = new List<string>();
 
-        public List<string> maleEndSyllablesOpen = new List<string> ();
-        public List<string> maleEndSyllablesClose = new List<string> ();
-        public List<string> femaleEndSyllablesOpen = new List<string> ();
-        public List<string> femaleEndSyllablesClose = new List<string> ();
+        public List<string> maleEndSyllablesOpen = new List<string>();
+        public List<string> maleEndSyllablesClose = new List<string>();
+        public List<string> femaleEndSyllablesOpen = new List<string>();
+        public List<string> femaleEndSyllablesClose = new List<string>();
 
-        [Header ("Numbers")]
-        public List<string> numberOrdinals = new List<string> ();
-        public List<string> numberCardinals = new List<string> ();
+        [Header("Numbers")]
+        public List<string> numberOrdinals = new List<string>();
+        public List<string> numberCardinals = new List<string>();
 
         #endregion
 
         #region Runtimes
 
         [System.NonSerialized]
-        protected string _fullPath;
+        protected string _path;
+        protected string _filename;
+        protected string _extension;
 
-        [System.NonSerialized]
-        protected Dictionary<string, NameSet> _setNames = new Dictionary<string, NameSet> ();
-        [System.NonSerialized]
-        protected List<string> _setNameIds = new List<string> ();
+        protected bool _scrable;
+        protected bool _encode;
 
-        [System.NonSerialized]
-        protected Dictionary<string, GrammarSet> _setGrammars = new Dictionary<string, GrammarSet> ();
-        [System.NonSerialized]
-        protected List<string> _setGrammarIds = new List<string> ();
-        public List<string> GetAllGrammarIds () { return this._setGrammarIds; }
-        [System.NonSerialized]
-        protected List<string> _allAdjectives = new List<string> ();
-        [System.NonSerialized]
-        protected List<string> _allNouns = new List<string> ();
-
-        protected void CreateRuntimeCollections ()
+        public string FullPath
         {
-            this._allNouns.Clear ();
-            this._allAdjectives.Clear ();
+            get
+            {
+                return this._path + "/" + this._filename + "." + this._extension;
+            }
+        }
 
-            this._setNames.Clear ();
-            this._setNameIds.Clear ();
+        [System.NonSerialized]
+        protected Dictionary<string, NameSet> _setNames = new Dictionary<string, NameSet>();
+        [System.NonSerialized]
+        protected List<string> _setNameIds = new List<string>();
+
+        [System.NonSerialized]
+        protected Dictionary<string, GrammarSet> _setGrammars = new Dictionary<string, GrammarSet>();
+        [System.NonSerialized]
+        protected List<string> _setGrammarIds = new List<string>();
+        public List<string> GetAllGrammarIds() { return this._setGrammarIds; }
+        [System.NonSerialized]
+        protected List<string> _allAdjectives = new List<string>();
+        [System.NonSerialized]
+        protected List<string> _allNouns = new List<string>();
+
+        protected void CreateRuntimeCollections()
+        {
+            this._allNouns.Clear();
+            this._allAdjectives.Clear();
+
+            this._setNames.Clear();
+            this._setNameIds.Clear();
 
             //this._setTitles.Clear ();
             //this._setTitleIds.Clear ();
 
-            this._setGrammars.Clear ();
-            this._setGrammarIds.Clear ();
+            this._setGrammars.Clear();
+            this._setGrammarIds.Clear();
 
             foreach (var nameSet in this.setNames)
             {
-                if (this._setNames.ContainsKey (nameSet.id))
-                    Debug.LogWarning (TAG + "Id " + nameSet.id + " already present Name Sets. Owerwritting...");
+                if (this._setNames.ContainsKey(nameSet.id))
+                    Debug.LogWarning(TAG + "Id " + nameSet.id + " already present Name Sets. Owerwritting...");
 
                 this._setNames[nameSet.id] = nameSet;
-                this._setNameIds.Add (nameSet.id);
+                this._setNameIds.Add(nameSet.id);
             }
 
             //foreach (var titleSet in this.setTitles)
@@ -137,11 +154,11 @@
 
             foreach (var grammarset in this.setGrammars)
             {
-                if (this._setGrammars.ContainsKey (grammarset.nounSingular))
-                    Debug.LogWarning (TAG + "Id " + grammarset.nounSingular + " already present in Grammer Sets. Owerwritting...");
+                if (this._setGrammars.ContainsKey(grammarset.nounSingular))
+                    Debug.LogWarning(TAG + "Id " + grammarset.nounSingular + " already present in Grammer Sets. Owerwritting...");
 
                 this._setGrammars[grammarset.nounSingular] = grammarset;
-                this._setGrammarIds.Add (grammarset.nounSingular);
+                this._setGrammarIds.Add(grammarset.nounSingular);
             }
         }
 
@@ -213,10 +230,10 @@
 
         //
 
-        public NameSet GetNameSet (string id)
+        public NameSet GetNameSet(string id)
         {
             NameSet nameset = null;
-            this._setNames.TryGetValue (id, out nameset);
+            this._setNames.TryGetValue(id, out nameset);
             return nameset;
         }
 
@@ -288,168 +305,168 @@
         //    return result;
         //}
 
-        public string GetRandomOrdinalNumber (int max = 1000)
+        public string GetRandomOrdinalNumber(int max = 1000)
         {
-            return (Chance.TryWithChance (0.3f)) ? GetOrdinalNumber (Random.Range (4, max + 1)) : this.numberOrdinals.GetRandom ();
+            return (Chance.TryWithChance(0.3f)) ? GetOrdinalNumber(Random.Range(4, max + 1)) : this.numberOrdinals.GetRandom();
         }
 
-        public string GetAdjective (bool plural = false, bool useNumbers = true, bool usePossessiveApostrophe = true, string nameSet = "")
+        public string GetAdjective(bool plural = false, bool useNumbers = true, bool usePossessiveApostrophe = true, string nameSet = "")
         {
             string result = string.Empty;
 
             //Numbers
-            if (useNumbers && Chance.TryWithChance (0.3f))
+            if (useNumbers && Chance.TryWithChance(0.3f))
             {
                 if (plural)
-                    result += this.numberCardinals.GetRandom ();
+                    result += this.numberCardinals.GetRandom();
                 else
-                    result += this.numberOrdinals.GetRandom ();
+                    result += this.numberOrdinals.GetRandom();
                 return result;
             }
 
             //Name
             if (Chance.FiftyFifty)
             {
-                string name = (nameSet == "") ? GetAnyName (Chance.FiftyFifty) : GetNameSet (nameSet).GetRandomName ();
-                if (!string.IsNullOrEmpty (name))
-                    result += (usePossessiveApostrophe) ? NameToAdjective (name) : name;
+                string name = (nameSet == "") ? GetAnyName(Chance.FiftyFifty) : GetNameSet(nameSet).GetRandomName();
+                if (!string.IsNullOrEmpty(name))
+                    result += (usePossessiveApostrophe) ? NameToAdjective(name) : name;
                 else
                 {
-                    Debug.LogError (TAG + "Empty name from GetAnyName!");
-                    result += this._allAdjectives.GetRandom ();
+                    Debug.LogError(TAG + "Empty name from GetAnyName!");
+                    result += this._allAdjectives.GetRandom();
                 }
             }
             else
             {
                 if (Chance.FiftyFifty)
-                    result += this._allAdjectives.GetRandom ();
+                    result += this._allAdjectives.GetRandom();
                 else
-                    result += this.setGrammars.GetRandom ().adjectives.GetRandom ();
+                    result += this.setGrammars.GetRandom().adjectives.GetRandom();
             }
 
             return result;
         }
 
-        public string GetAdjective (string key)
+        public string GetAdjective(string key)
         {
             GrammarSet set = null;
-            if (this._setGrammars.TryGetValue (key, out set))
-                return set.adjectives.GetRandom ();
+            if (this._setGrammars.TryGetValue(key, out set))
+                return set.adjectives.GetRandom();
 
             return key;
         }
 
-        public string GetPrefix (string key = "")
+        public string GetPrefix(string key = "")
         {
 
             if (key == "")
-                return this.setGrammars.GetRandom ().nounSingular;
+                return this.setGrammars.GetRandom().nounSingular;
 
             return key;
         }
 
-        public string GetGenetive (bool forceSingular = false, bool useOrdinals = true, string nameSet = "")
+        public string GetGenetive(bool forceSingular = false, bool useOrdinals = true, string nameSet = "")
         {
             GrammarSet grammarset = null;
             string result = "of ";
             string genetive = string.Empty;
             bool plural = !forceSingular && Chance.FiftyFifty;
 
-            bool useAdjective = Chance.TryWithChance (0.3f);
+            bool useAdjective = Chance.TryWithChance(0.3f);
 
             if (!plural)
             {
 
-                grammarset = this.setGrammars.GetRandom ();
+                grammarset = this.setGrammars.GetRandom();
                 if (grammarset.useDeterminer || useAdjective)
                 {
                     result += "the ";
                     genetive = grammarset.nounSingular;
                 }
 
-                grammarset = this.setGrammars.GetRandom ();
-                result += (useOrdinals && Chance.FiftyFifty) ? this.numberOrdinals.GetRandom () + " " : "";
+                grammarset = this.setGrammars.GetRandom();
+                result += (useOrdinals && Chance.FiftyFifty) ? this.numberOrdinals.GetRandom() + " " : "";
                 if (useAdjective)
-                    result += grammarset.adjectives.GetRandom () + " ";
+                    result += grammarset.adjectives.GetRandom() + " ";
                 result += genetive;
             }
             else
             {
-                result += (Chance.FiftyFifty) ? this.numberCardinals.GetRandom () + " " : "";
-                grammarset = this.setGrammars.GetRandom ();
+                result += (Chance.FiftyFifty) ? this.numberCardinals.GetRandom() + " " : "";
+                grammarset = this.setGrammars.GetRandom();
                 while (grammarset.nounPlurals.Count == 0)
                 {
-                    grammarset = this.setGrammars.GetRandom ();
+                    grammarset = this.setGrammars.GetRandom();
                 }
 
-                genetive = grammarset.nounPlurals.GetRandom ();
+                genetive = grammarset.nounPlurals.GetRandom();
                 if (useAdjective)
                 {
-                    grammarset = this.setGrammars.GetRandom ();
-                    result += grammarset.adjectives.GetRandom () + " ";
+                    grammarset = this.setGrammars.GetRandom();
+                    result += grammarset.adjectives.GetRandom() + " ";
                 }
                 result += genetive;
             }
             return result;
         }
 
-        public string GetGenetive (string key)
+        public string GetGenetive(string key)
         {
             GrammarSet set = null;
-            if (this._setGrammars.TryGetValue (key, out set))
+            if (this._setGrammars.TryGetValue(key, out set))
             {
-                return (Chance.FiftyFifty) ? (set.useDeterminer) ? "the " + set.nounSingular : set.nounSingular : set.nounPlurals.GetRandom ();
+                return (Chance.FiftyFifty) ? (set.useDeterminer) ? "the " + set.nounSingular : set.nounSingular : set.nounPlurals.GetRandom();
             }
             return key;
         }
 
-        public string GetAnyName (bool isMale = true)
+        public string GetAnyName(bool isMale = true)
         {
             if (Chance.FiftyFifty)
             {
-                Debug.LogError (TAG + "Getting Name from name data...");
-                return this.setNames.GetRandom ().GetRandomName (isMale);
+                Debug.LogError(TAG + "Getting Name from name data...");
+                return this.setNames.GetRandom().GetRandomName(isMale);
             }
-            Debug.LogError (TAG + "Generating true random name...");
-            return GenerateTrueRandomName (3, isMale);
+            Debug.LogError(TAG + "Generating true random name...");
+            return GenerateTrueRandomName(3, isMale);
         }
 
-        public static string NameToAdjective (string name)
+        public static string NameToAdjective(string name)
         {
             return name + "\'s";
         }
 
         #region Syllable Generator
 
-        public string GenerateTrueRandomName (int maxSyllables = 3, bool isMale = true)
+        public string GenerateTrueRandomName(int maxSyllables = 3, bool isMale = true)
         {
             if (maxSyllables == 0)
                 return "[zero syllables]";
 
-            int syllableCount = Random.Range (1, maxSyllables + 1);
-            Debug.LogError (TAG + syllableCount + " syllables.");
-            int[] syllableLengths = GetSyllableLenghts (syllableCount);
-            bool[] syllablesTypes = GetSyllableTypes (syllableLengths);
-            string[] syllablesStrings = GetSyllableStrings (syllablesTypes, syllableLengths, isMale);
+            int syllableCount = Random.Range(1, maxSyllables + 1);
+            Debug.LogError(TAG + syllableCount + " syllables.");
+            int[] syllableLengths = GetSyllableLenghts(syllableCount);
+            bool[] syllablesTypes = GetSyllableTypes(syllableLengths);
+            string[] syllablesStrings = GetSyllableStrings(syllablesTypes, syllableLengths, isMale);
 
-            string name = ConcatanateSyllables (syllablesStrings);
+            string name = ConcatanateSyllables(syllablesStrings);
             return name;
         }
 
-        public int[] GetSyllableLenghts (int syllableCount = 1)
+        public int[] GetSyllableLenghts(int syllableCount = 1)
         {
             int[] lenghts = new int[syllableCount];
 
             for (int i = 0; i < lenghts.Length; i++)
             {
-                lenghts[i] = Random.Range (2, 4);
-                Debug.LogError (lenghts[i].ToString ());
+                lenghts[i] = Random.Range(2, 4);
+                Debug.LogError(lenghts[i].ToString());
             }
 
             return lenghts;
         }
 
-        public bool[] GetSyllableTypes (int[] syllableLengths)
+        public bool[] GetSyllableTypes(int[] syllableLengths)
         {
             bool[] syllableTypes = new bool[syllableLengths.Length];
 
@@ -463,12 +480,12 @@
                 {
                     syllableTypes[i] = false;
                 }
-                Debug.LogError (syllableTypes[i].ToString ());
+                Debug.LogError(syllableTypes[i].ToString());
             }
             return syllableTypes;
         }
 
-        public string[] GetSyllableStrings (bool[] types, int[] lengths, bool isMale = true)
+        public string[] GetSyllableStrings(bool[] types, int[] lengths, bool isMale = true)
         {
             string[] syllableStrings = new string[types.Length];
 
@@ -482,29 +499,29 @@
                     //Try for vowel on start
                     if (types[i])
                     {
-                        if (types.Length > 1 && Chance.TryWithChance (0.3f))
+                        if (types.Length > 1 && Chance.TryWithChance(0.3f))
                         {
-                            result = this.vowels.GetRandom ();
+                            result = this.vowels.GetRandom();
                             syllableStrings[i] = result;
                             continue;
                         }
-                        result = this.consonantStart.GetRandom ();
-                        result += this.vowels.GetRandom ();
+                        result = this.consonantStart.GetRandom();
+                        result += this.vowels.GetRandom();
                         syllableStrings[i] = result;
                         continue;
                     }
 
                     if (lengths[i] > 2)
                     {
-                        result = this.consonantOpen.GetRandom ();
-                        result += this.vowels.GetRandom ();
-                        result += this.consonantClose.GetRandom ();
+                        result = this.consonantOpen.GetRandom();
+                        result += this.vowels.GetRandom();
+                        result += this.consonantClose.GetRandom();
                         syllableStrings[i] = result;
                         continue;
                     }
 
-                    result = this.vowels.GetRandom ();
-                    result += this.consonantClose.GetRandom ();
+                    result = this.vowels.GetRandom();
+                    result += this.consonantClose.GetRandom();
                     syllableStrings[i] = result;
                     continue;
                 }
@@ -513,9 +530,9 @@
                 {
 
                     if (isMale)
-                        result = (types[i - 1]) ? this.maleEndSyllablesOpen.GetRandom () : this.maleEndSyllablesClose.GetRandom ();
+                        result = (types[i - 1]) ? this.maleEndSyllablesOpen.GetRandom() : this.maleEndSyllablesClose.GetRandom();
                     else
-                        result = (types[i - 1]) ? this.femaleEndSyllablesOpen.GetRandom () : this.femaleEndSyllablesClose.GetRandom ();
+                        result = (types[i - 1]) ? this.femaleEndSyllablesOpen.GetRandom() : this.femaleEndSyllablesClose.GetRandom();
 
                     syllableStrings[i] = result;
                     continue;
@@ -523,35 +540,35 @@
                 //middle syllables
                 if (types[i])
                 {
-                    result = this.consonantOpen.GetRandom ();
-                    result += this.vowels.GetRandom ();
+                    result = this.consonantOpen.GetRandom();
+                    result += this.vowels.GetRandom();
                     syllableStrings[i] = result;
                     continue;
                 }
 
                 if (lengths[i] > 2)
                 {
-                    result = this.consonantOpen.GetRandom ();
-                    result += this.vowels.GetRandom ();
-                    result += this.consonantClose.GetRandom ();
+                    result = this.consonantOpen.GetRandom();
+                    result += this.vowels.GetRandom();
+                    result += this.consonantClose.GetRandom();
                     syllableStrings[i] = result;
                     continue;
                 }
 
-                result = this.vowels.GetRandom ();
-                result += this.consonantClose.GetRandom ();
+                result = this.vowels.GetRandom();
+                result += this.consonantClose.GetRandom();
                 syllableStrings[i] = result;
                 continue;
 
             }
             foreach (var value in syllableStrings)
             {
-                Debug.LogError (value);
+                Debug.LogError(value);
             }
             return syllableStrings;
         }
 
-        protected string ConcatanateSyllables (string[] syllables)
+        protected string ConcatanateSyllables(string[] syllables)
         {
             string result = string.Empty;
             string left, right;
@@ -564,7 +581,7 @@
                     right = syllables[i];
                     if (left[left.Length - 1] == right[0])
                     {
-                        right.PadRight (1);
+                        right.PadRight(1);
                     }
                 }
 
@@ -576,7 +593,7 @@
 
         #endregion
 
-        public static string GetOrdinalNumber (int number)
+        public static string GetOrdinalNumber(int number)
         {
             int remainder = number % 10;
             if (number < 10 || number > 20)
@@ -605,12 +622,12 @@
 
         #region IInitializable
 
-        public bool Initialize ()
+        public bool Initialize()
         {
             if (!this.IsInitialized)
             {
-                SemanticData.LoadData (this);
-                CreateRuntimeCollections ();
+                SemanticData.LoadData(this.FullPath, this, this._scrable, this._encode);
+                CreateRuntimeCollections();
                 this.IsInitialized = true;
                 return true;
             }
@@ -625,54 +642,32 @@
 
         #endregion
 
-        #region File IO
-        public void Load ()
+        #region IO
+
+        public static void LoadData(string path, SemanticData data, bool scramble = false, bool encode = false)
         {
-            SemanticData.LoadData (this);
+            DataUtility.LoadOverwrite(path, data, scramble, encode);
+            data.PostLoad();
         }
 
-        public void Load (string path)
-        {
-            this._fullPath = path;
-            Load ();
-        }
-
-        public void Save ()
-        {
-            SemanticData.SaveData (this);
-        }
-
-        public void Save (string path)
-        {
-            this._fullPath = path;
-            Save ();
-        }
-
-        public static void LoadData (SemanticData data)
-        {
-            DataUtility.LoadOverwrite (Application.dataPath + data._fullPath, data);
-            data.PostLoad ();
-
-        }
-
-        public void PostLoad ()
+        public void PostLoad()
         {
             foreach (var nameset in this.setNames)
             {
                 for (int i = 0; i < nameset.prefixes.Count; i++)
                 {
-                    nameset.prefixes[i] = nameset.prefixes[i].ToLower ();
+                    nameset.prefixes[i] = nameset.prefixes[i].ToLower();
                 }
 
-                nameset.prefixes.Sort ();
+                nameset.prefixes.Sort();
 
 
                 for (int i = 0; i < nameset.sufixes.Count; i++)
                 {
-                    nameset.sufixes[i] = nameset.sufixes[i].ToLower ();
+                    nameset.sufixes[i] = nameset.sufixes[i].ToLower();
                 }
 
-                nameset.sufixes.Sort ();
+                nameset.sufixes.Sort();
             }
 
             //foreach (var titleset in this.setTitles)
@@ -713,73 +708,47 @@
 
         }
 
-        public static void SaveData (SemanticData data)
+        public static void SaveData(string fullPath, string filename, SemanticData data, bool scramble = false, bool encode = false, string extension = "")
         {
-            data.PreSave ();
-            DataUtility.Save (Application.dataPath + data._fullPath, data);
+            data.PreSave();
+            DataUtility.Save(fullPath, filename, data, scramble, encode, extension);
         }
 
-        public void PreSave ()
+        public void PreSave()
         {
-            Optimize (this.vowels);
-            Optimize (this.vowelPairs);
+            DataUtility.OptimizeStringList(this.vowels);
+            DataUtility.OptimizeStringList(this.vowelPairs);
 
-            Optimize (this.consonantStart);
-            Optimize (this.consonantOpen);
-            Optimize (this.consonantClose);
+            DataUtility.OptimizeStringList(this.consonantStart);
+            DataUtility.OptimizeStringList(this.consonantOpen);
+            DataUtility.OptimizeStringList(this.consonantClose);
 
-            Optimize (this.maleEndSyllablesOpen);
-            Optimize (this.maleEndSyllablesClose);
-            Optimize (this.femaleEndSyllablesOpen);
-            Optimize (this.femaleEndSyllablesClose);
+            DataUtility.OptimizeStringList(this.maleEndSyllablesOpen);
+            DataUtility.OptimizeStringList(this.maleEndSyllablesClose);
+            DataUtility.OptimizeStringList(this.femaleEndSyllablesOpen);
+            DataUtility.OptimizeStringList(this.femaleEndSyllablesClose);
 
-            this.setNames.Sort ((x, y) => x.id.CompareTo (y.id));
+            this.setNames.Sort((x, y) => x.id.CompareTo(y.id));
             foreach (var nameset in this.setNames)
             {
-                Optimize (nameset.prefixes);
-                Optimize (nameset.sufixes);
-                Optimize (nameset.names);
-                Optimize (nameset.adjectiveKeys);
-                Optimize (nameset.presets);
-                Optimize (nameset.synonyms);
+                DataUtility.OptimizeStringList(nameset.prefixes);
+                DataUtility.OptimizeStringList(nameset.sufixes);
+                DataUtility.OptimizeStringList(nameset.adjectiveKeys);
+                DataUtility.OptimizeStringList(nameset.presets);
+                DataUtility.OptimizeStringList(nameset.synonyms);
 
-                nameset.concatenationRules.Sort ((x, y) => x.replace.CompareTo (y.replace));
+                nameset.concatenationRules.Sort((x, y) => x.replace.CompareTo(y.replace));
             }
 
-            this.setGrammars.Sort ((x, y) => x.nounSingular.CompareTo (y.nounSingular));
+            this.setGrammars.Sort((x, y) => x.nounSingular.CompareTo(y.nounSingular));
             foreach (var grammarset in this.setGrammars)
             {
-                OptimizeString (grammarset.nounSingular);
+                DataUtility.OptimizeString(grammarset.nounSingular);
 
-                Optimize (grammarset.nounPlurals);
-                Optimize (grammarset.adjectives);
+                DataUtility.OptimizeStringList(grammarset.nounPlurals);
+                DataUtility.OptimizeStringList(grammarset.adjectives);
             }
         }
-
-        public static List<string> Optimize (List<string> toOptimize)
-        {
-            toOptimize.Sort ();
-            for (int i = toOptimize.Count - 1; i >= 0; --i)
-            {
-                toOptimize[i] = toOptimize[i].Trim ().ToLower ();
-                if (i < toOptimize.Count - 1)
-                {
-                    var left = toOptimize[i];
-                    var right = toOptimize[i + 1];
-                    if (left == right)
-                    {
-                        toOptimize.RemoveAt (i);
-                    }
-                }
-            }
-            return toOptimize;
-        }
-
-        public static string OptimizeString (string toOptimize)
-        {
-            return toOptimize.Trim ().ToLower ();
-        }
-
         #endregion
     }
 
@@ -793,43 +762,43 @@
         /// <summary>
         /// Synonyms for the subjective.
         /// </summary>
-        public List<string> synonyms = new List<string> ();
+        public List<string> synonyms = new List<string>();
 
         /// <summary>
         /// Prefixes for concatenation with subjective (or synonym) 
         /// </summary>
-        public List<string> adjectiveKeys = new List<string> ();
+        public List<string> adjectiveKeys = new List<string>();
 
         /// <summary>
         /// The prefixes for pseudo names.
         /// </summary>
-        public List<string> prefixes = new List<string> ();
+        public List<string> prefixes = new List<string>();
         /// <summary>
         /// The sufixes for pseudo names.
         /// </summary>
-        public List<string> sufixes = new List<string> ();
+        public List<string> sufixes = new List<string>();
 
         /// <summary>
         /// The real name database.
         /// </summary>
-        public List<string> names = new List<string> ();
+        public List<string> names = new List<string>();
 
-        public List<string> presets = new List<string> ();
+        public List<string> presets = new List<string>();
 
         /// <summary>
         /// The concatenation rules for generating pseudo names.
         /// </summary>
-        public List<GrammarRule> concatenationRules = new List<GrammarRule> ();
+        public List<GrammarRule> concatenationRules = new List<GrammarRule>();
 
         /// <summary>
         /// The gender conversion rules for generating pseudo names.
         /// </summary>
-        public List<GrammarRule> genderConversionRules = new List<GrammarRule> ();
+        public List<GrammarRule> genderConversionRules = new List<GrammarRule>();
 
         /// <summary>
         /// List of instruction sequences used for generating a title.
         /// </summary>
-        public List<ConstructionRule> titleConstructionRules = new List<ConstructionRule> ();
+        public List<ConstructionRule> titleConstructionRules = new List<ConstructionRule>();
         #endregion
 
         #region API
@@ -838,15 +807,15 @@
         /// </summary>
         /// <returns>The random real or pseudo name.</returns>
         /// <param name="male">Should random name be male or female name.</param>
-        public string GetRandomName (bool male = true)
+        public string GetRandomName(bool male = true)
         {
             if (this.prefixes.Count + this.sufixes.Count == 0)
             {
-                Debug.LogError ("No prefixes or sufixes in name set " + this.id);
-                return GetName ();
+                Debug.LogError("No prefixes or sufixes in name set " + this.id);
+                return GetName();
             }
 
-            return GetName ();
+            return GetName();
         }
 
         /// <summary>
@@ -854,24 +823,24 @@
         /// </summary>
         /// <returns>A real name from the database.</returns>
         /// <param name="male">Should real name be male or female name.</param>
-        public string GetName ()
+        public string GetName()
         {
             if (this.names.Count != 0)
-                return this.names.GetRandom ();
+                return this.names.GetRandom();
 
             return "NULL(" + id + ")";
         }
 
-        public string GenerateTitle (SemanticData data = null, InfluenceSet influenceSet = null)
+        public string GenerateTitle(SemanticData data = null, InfluenceSet influenceSet = null)
         {
-            return NameSet.Construct (this, this.titleConstructionRules.GetRandom (), data, influenceSet);
+            return NameSet.Construct(this, this.titleConstructionRules.GetRandom(), data, influenceSet);
         }
 
         #endregion
 
         #region STATIC API
 
-        public static string Construct (NameSet set, ConstructionRule rule, SemanticData data = null, InfluenceSet influenceSet = null)
+        public static string Construct(NameSet set, ConstructionRule rule, SemanticData data = null, InfluenceSet influenceSet = null)
         {
             string result = string.Empty;
 
@@ -889,30 +858,30 @@
                         result += " ";
                         break;
                     case ConstructionInstruction.NAME_FULL:
-                        result += (hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasName) ? influenceSet.Name : set.names.GetRandom ();
+                        result += (hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasName) ? influenceSet.Name : set.names.GetRandom();
                         break;
                     case ConstructionInstruction.NAME_PARTIAL_PREFIX:
-                        result += hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasPrefix ? influenceSet.Prefix : set.prefixes.GetRandom ();
+                        result += hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasPrefix ? influenceSet.Prefix : set.prefixes.GetRandom();
                         break;
                     case ConstructionInstruction.NEME_PARTIAL_SUFIX:
-                        result += hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasSufix ? influenceSet.Sufix : set.sufixes.GetRandom ();
+                        result += hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasSufix ? influenceSet.Sufix : set.sufixes.GetRandom();
                         break;
                     case ConstructionInstruction.SUBJECTIVE_ORIGINAL_OR_SYNONYM:
-                        result += hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasSynonym ? influenceSet.Synonym : set.synonyms.GetRandom ();
+                        result += hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasSynonym ? influenceSet.Synonym : set.synonyms.GetRandom();
                         break;
                     case ConstructionInstruction.ADJECTIVE:
                         //Consturcts adjective or fallsback to singular noun
                         result += (hasData) ?
-                            data.GetAdjective (hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasAdjectiveKey ?
-                                influenceSet.AdjectiveKey : set.adjectiveKeys.GetRandom ())
-                            : set.adjectiveKeys.GetRandom ();
+                            data.GetAdjective(hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasAdjectiveKey ?
+                                influenceSet.AdjectiveKey : set.adjectiveKeys.GetRandom())
+                            : set.adjectiveKeys.GetRandom();
                         break;
                     case ConstructionInstruction.GENETIVE:
                         //Using only singular noun
-                        result += (hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasAdjectiveKey) ? influenceSet.AdjectiveKey : set.adjectiveKeys.GetRandom ();
+                        result += (hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasAdjectiveKey) ? influenceSet.AdjectiveKey : set.adjectiveKeys.GetRandom();
                         break;
                     case ConstructionInstruction.PRESET:
-                        result += hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasPreset ? influenceSet.Preset : set.presets.GetRandom ();
+                        result += hasInfluenceSet && Chance.FiftyFifty && influenceSet.HasPreset ? influenceSet.Preset : set.presets.GetRandom();
                         break;
                     case ConstructionInstruction.PREPOSITION_OF:
                         result += "of ";
@@ -925,7 +894,7 @@
 
             foreach (var concatenationRule in set.concatenationRules)
             {
-                result = result.Replace (concatenationRule.replace, concatenationRule.with);
+                result = result.Replace(concatenationRule.replace, concatenationRule.with);
             }
 
             return result;
@@ -936,25 +905,25 @@
 
     public class InfluenceSet
     {
-        public InfluenceSet () { this._nameSets = new List<NameSet> (); }
-        public InfluenceSet (params NameSet[] args) { this._nameSets = new List<NameSet> (args); }
-        public InfluenceSet (List<NameSet> namesets) { this._nameSets = new List<NameSet> (namesets); }
+        public InfluenceSet() { this._nameSets = new List<NameSet>(); }
+        public InfluenceSet(params NameSet[] args) { this._nameSets = new List<NameSet>(args); }
+        public InfluenceSet(List<NameSet> namesets) { this._nameSets = new List<NameSet>(namesets); }
 
         protected List<NameSet> _nameSets;
 
         #region API
 
-        public void AddNameSet (NameSet nameset)
+        public void AddNameSet(NameSet nameset)
         {
-            if (!this._nameSets.Contains (nameset))
+            if (!this._nameSets.Contains(nameset))
             {
-                this._nameSets.Add (nameset);
+                this._nameSets.Add(nameset);
             }
         }
 
-        public bool RemoveNameSet (NameSet nameset)
+        public bool RemoveNameSet(NameSet nameset)
         {
-            return this._nameSets.Remove (nameset);
+            return this._nameSets.Remove(nameset);
         }
 
         public string Synonym
@@ -964,11 +933,11 @@
                 NameSet set = null;
                 do
                 {
-                    set = this._nameSets.GetRandom ();
+                    set = this._nameSets.GetRandom();
                 }
                 while (set.synonyms.Count == 0);
 
-                return set.synonyms.GetRandom ();
+                return set.synonyms.GetRandom();
             }
         }
 
@@ -992,11 +961,11 @@
                 NameSet set = null;
                 do
                 {
-                    set = this._nameSets.GetRandom ();
+                    set = this._nameSets.GetRandom();
                 }
                 while (set.adjectiveKeys.Count == 0);
 
-                return set.adjectiveKeys.GetRandom ();
+                return set.adjectiveKeys.GetRandom();
             }
         }
 
@@ -1020,11 +989,11 @@
                 NameSet set = null;
                 do
                 {
-                    set = this._nameSets.GetRandom ();
+                    set = this._nameSets.GetRandom();
                 }
                 while (set.prefixes.Count == 0);
 
-                return set.prefixes.GetRandom ();
+                return set.prefixes.GetRandom();
             }
         }
 
@@ -1048,11 +1017,11 @@
                 NameSet set = null;
                 do
                 {
-                    set = this._nameSets.GetRandom ();
+                    set = this._nameSets.GetRandom();
                 }
                 while (set.sufixes.Count == 0);
 
-                return set.sufixes.GetRandom ();
+                return set.sufixes.GetRandom();
             }
         }
 
@@ -1076,11 +1045,11 @@
                 NameSet set = null;
                 do
                 {
-                    set = this._nameSets.GetRandom ();
+                    set = this._nameSets.GetRandom();
                 }
                 while (set.names.Count == 0);
 
-                return set.names.GetRandom ();
+                return set.names.GetRandom();
             }
         }
 
@@ -1104,11 +1073,11 @@
                 NameSet set = null;
                 do
                 {
-                    set = this._nameSets.GetRandom ();
+                    set = this._nameSets.GetRandom();
                 }
                 while (set.presets.Count == 0);
 
-                return set.presets.GetRandom ();
+                return set.presets.GetRandom();
             }
         }
 
