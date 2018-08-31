@@ -36,7 +36,7 @@
         public string dataVersion = "0.0";
 
         [Header("Name Sets")]
-        public List<NameSet> setNames = new List<NameSet>();
+        public List<Lexicon> setNames = new List<Lexicon>();
         //[Header ("Title Sets")]
         //public List<TitleSet> setTitles = new List<TitleSet> ();
         [Header("Grammar Sets")]
@@ -71,6 +71,14 @@
         protected bool _scrable;
         protected bool _encode;
 
+        public string ResourcePath
+        {
+            get
+            {
+                return this._path + "/" + this._filename;
+            }
+        }
+
         public string FullPath
         {
             get
@@ -80,7 +88,7 @@
         }
 
         [System.NonSerialized]
-        protected Dictionary<string, NameSet> _setNames = new Dictionary<string, NameSet>();
+        protected Dictionary<string, Lexicon> _setNames = new Dictionary<string, Lexicon>();
         [System.NonSerialized]
         protected List<string> _setNameIds = new List<string>();
 
@@ -230,9 +238,9 @@
 
         //
 
-        public NameSet GetNameSet(string id)
+        public Lexicon GetNameSet(string id)
         {
-            NameSet nameset = null;
+            Lexicon nameset = null;
             this._setNames.TryGetValue(id, out nameset);
             return nameset;
         }
@@ -626,7 +634,6 @@
         {
             if (!this.IsInitialized)
             {
-                SemanticData.LoadData(this.FullPath, this, this._scrable, this._encode);
                 CreateRuntimeCollections();
                 this.IsInitialized = true;
                 return true;
@@ -643,11 +650,26 @@
         #endregion
 
         #region IO
-
-        public static void LoadData(string path, SemanticData data, bool scramble = false, bool encode = false)
+        public void Load()
         {
-            DataUtility.LoadOverwrite(path, data, scramble, encode);
-            data.PostLoad();
+            LoadData(this);
+            this.IsInitialized = false;
+        }
+
+        public void Save()
+        {
+            SaveData(this);
+        }
+
+        public void Save(string path, string filename, bool scramble = false, bool encode = false, string extension = "")
+        {
+            this._path = path;
+            this._filename = filename;
+            this._scrable = scramble;
+            this._encode = encode;
+            this._extension = extension;
+
+            SaveData(this);
         }
 
         public void PostLoad()
@@ -708,10 +730,19 @@
 
         }
 
-        public static void SaveData(string fullPath, string filename, SemanticData data, bool scramble = false, bool encode = false, string extension = "")
+        public static void LoadData(SemanticData data)
         {
+            DataUtility.ResourceLoad(data.ResourcePath, data, data._scrable, data._encode);
+#if UNITY_EDITOR
+            data.PostLoad();
+#endif
+        }
+
+        public static void SaveData(SemanticData data)
+        {
+
             data.PreSave();
-            DataUtility.Save(fullPath, filename, data, scramble, encode, extension);
+            DataUtility.ResourceSave(data._path, data._filename, data, data._scrable, data._encode, data._extension);
         }
 
         public void PreSave()
@@ -753,7 +784,7 @@
     }
 
     [System.Serializable]
-    public class NameSet
+    public class Lexicon
     {
         #region DATA
         //subjective
@@ -773,6 +804,7 @@
         /// The prefixes for pseudo names.
         /// </summary>
         public List<string> prefixes = new List<string>();
+
         /// <summary>
         /// The sufixes for pseudo names.
         /// </summary>
@@ -798,7 +830,7 @@
         /// <summary>
         /// List of instruction sequences used for generating a title.
         /// </summary>
-        public List<ConstructionRule> titleConstructionRules = new List<ConstructionRule>();
+        public List<ConstructionSequence> titleConstructionRules = new List<ConstructionSequence>();
         #endregion
 
         #region API
@@ -833,14 +865,14 @@
 
         public string GenerateTitle(SemanticData data = null, InfluenceSet influenceSet = null)
         {
-            return NameSet.Construct(this, this.titleConstructionRules.TryGetRandom(), data, influenceSet);
+            return Lexicon.Construct(this, this.titleConstructionRules.TryGetRandom(), data, influenceSet);
         }
 
         #endregion
 
         #region STATIC API
 
-        public static string Construct(NameSet set, ConstructionRule rule, SemanticData data = null, InfluenceSet influenceSet = null)
+        public static string Construct(Lexicon set, ConstructionSequence rule, SemanticData data = null, InfluenceSet influenceSet = null)
         {
             string result = string.Empty;
 
@@ -903,17 +935,21 @@
         #endregion
     }
 
+    /// <summary>
+    /// Sum of all influences.
+    /// TODO 20180829: Use other lexicons directly as influence sets. 
+    /// </summary>
     public class InfluenceSet
     {
-        public InfluenceSet() { this._nameSets = new List<NameSet>(); }
-        public InfluenceSet(params NameSet[] args) { this._nameSets = new List<NameSet>(args); }
-        public InfluenceSet(List<NameSet> namesets) { this._nameSets = new List<NameSet>(namesets); }
+        public InfluenceSet() { this._nameSets = new List<Lexicon>(); }
+        public InfluenceSet(params Lexicon[] args) { this._nameSets = new List<Lexicon>(args); }
+        public InfluenceSet(List<Lexicon> namesets) { this._nameSets = new List<Lexicon>(namesets); }
 
-        protected List<NameSet> _nameSets;
+        protected List<Lexicon> _nameSets;
 
         #region API
 
-        public void AddNameSet(NameSet nameset)
+        public void AddNameSet(Lexicon nameset)
         {
             if (!this._nameSets.Contains(nameset))
             {
@@ -921,7 +957,7 @@
             }
         }
 
-        public bool RemoveNameSet(NameSet nameset)
+        public bool RemoveNameSet(Lexicon nameset)
         {
             return this._nameSets.Remove(nameset);
         }
@@ -930,7 +966,7 @@
         {
             get
             {
-                NameSet set = null;
+                Lexicon set = null;
                 do
                 {
                     set = this._nameSets.TryGetRandom();
@@ -958,7 +994,7 @@
         {
             get
             {
-                NameSet set = null;
+                Lexicon set = null;
                 do
                 {
                     set = this._nameSets.TryGetRandom();
@@ -986,7 +1022,7 @@
         {
             get
             {
-                NameSet set = null;
+                Lexicon set = null;
                 do
                 {
                     set = this._nameSets.TryGetRandom();
@@ -1014,7 +1050,7 @@
         {
             get
             {
-                NameSet set = null;
+                Lexicon set = null;
                 do
                 {
                     set = this._nameSets.TryGetRandom();
@@ -1042,7 +1078,7 @@
         {
             get
             {
-                NameSet set = null;
+                Lexicon set = null;
                 do
                 {
                     set = this._nameSets.TryGetRandom();
@@ -1070,7 +1106,7 @@
         {
             get
             {
-                NameSet set = null;
+                Lexicon set = null;
                 do
                 {
                     set = this._nameSets.TryGetRandom();
@@ -1172,16 +1208,17 @@
     }
 
     [System.Serializable]
-    public class ConstructionRule
+    public class ConstructionSequence
     {
         public string name;
         public ConstructionInstruction[] instructions;
 
-        public static ConstructionRule PresetRule
+        #region TEMPLATES
+        public static ConstructionSequence PresetRule
         {
             get
             {
-                return new ConstructionRule
+                return new ConstructionSequence
                 {
                     name = "Preset",
                     instructions = new ConstructionInstruction[] { ConstructionInstruction.PRESET }
@@ -1189,11 +1226,11 @@
             }
         }
 
-        public static ConstructionRule AdjectivePrefixSynonymRule
+        public static ConstructionSequence AdjectivePrefixSynonymRule
         {
             get
             {
-                return new ConstructionRule
+                return new ConstructionSequence
                 {
                     name = "AdjectivePrefix-Synonym",
                     instructions = new ConstructionInstruction[] { ConstructionInstruction.ADJECTIVE, ConstructionInstruction.SUBJECTIVE_ORIGINAL_OR_SYNONYM }
@@ -1201,11 +1238,11 @@
             }
         }
 
-        public static ConstructionRule AdjectiveSynonymRule
+        public static ConstructionSequence AdjectiveSynonymRule
         {
             get
             {
-                return new ConstructionRule
+                return new ConstructionSequence
                 {
                     name = "Adjective-Synonym",
                     instructions = new ConstructionInstruction[] { ConstructionInstruction.ADJECTIVE, ConstructionInstruction.SEPARATOR, ConstructionInstruction.SUBJECTIVE_ORIGINAL_OR_SYNONYM }
@@ -1213,11 +1250,11 @@
             }
         }
 
-        public static ConstructionRule SynonymGenetiveRule
+        public static ConstructionSequence SynonymGenetiveRule
         {
             get
             {
-                return new ConstructionRule
+                return new ConstructionSequence
                 {
                     name = "Synonym-Genetive",
                     instructions = new ConstructionInstruction[] {
@@ -1231,11 +1268,11 @@
             }
         }
 
-        public static ConstructionRule SynonymAdjectiveRule
+        public static ConstructionSequence SynonymAdjectiveRule
         {
             get
             {
-                return new ConstructionRule
+                return new ConstructionSequence
                 {
                     name = "Synonym-Adjective",
                     instructions = new ConstructionInstruction[] {
@@ -1249,11 +1286,11 @@
             }
         }
 
-        public static ConstructionRule GenetiveSynonymRule
+        public static ConstructionSequence GenetiveSynonymRule
         {
             get
             {
-                return new ConstructionRule
+                return new ConstructionSequence
                 {
                     name = "Synonym-Adjective",
                     instructions = new ConstructionInstruction[] {
@@ -1265,7 +1302,7 @@
                 };
             }
         }
-
+        #endregion
     }
 
     [System.Serializable]

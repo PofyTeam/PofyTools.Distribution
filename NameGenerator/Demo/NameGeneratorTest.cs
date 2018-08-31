@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using PofyTools;
 using PofyTools.Distribution;
 using Extensions;
+using Guvernal.IdleRPG;
 
 public class NameGeneratorTest : MonoBehaviour
 {
@@ -26,10 +27,11 @@ public class NameGeneratorTest : MonoBehaviour
     public SemanticData data;
 
     [Header("Influncer")]
-    public NameSet influencerOne;
-    public NameSet influencerTwo;
+    public Lexicon influencerOne;
+    public Lexicon influencerTwo;
 
     private InfluenceSet _influenceSet;
+
     void Awake()
     {
         Load();
@@ -44,17 +46,16 @@ public class NameGeneratorTest : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(this.input.text) && this.data.GetNameSet(this.input.text) == null)
         {
-            var ns = new NameSet();
+            var ns = new Lexicon();
             ns.id = this.input.text;
             this.data.setNames.Add(ns);
 
-            ns.titleConstructionRules.Add(ConstructionRule.PresetRule);
-            ns.titleConstructionRules.Add(ConstructionRule.AdjectivePrefixSynonymRule);
-            ns.titleConstructionRules.Add(ConstructionRule.AdjectiveSynonymRule);
-            ns.titleConstructionRules.Add(ConstructionRule.SynonymAdjectiveRule);
-            ns.titleConstructionRules.Add(ConstructionRule.SynonymGenetiveRule);
+            ns.titleConstructionRules.Add(ConstructionSequence.PresetRule);
+            ns.titleConstructionRules.Add(ConstructionSequence.AdjectivePrefixSynonymRule);
+            ns.titleConstructionRules.Add(ConstructionSequence.AdjectiveSynonymRule);
+            ns.titleConstructionRules.Add(ConstructionSequence.SynonymAdjectiveRule);
+            ns.titleConstructionRules.Add(ConstructionSequence.SynonymGenetiveRule);
             //TODO: Add name instrucitons
-
 
             this._currentNameSet = ns;
 
@@ -109,7 +110,7 @@ public class NameGeneratorTest : MonoBehaviour
         RefeshAll();
     }
 
-    private NameSet _currentNameSet;
+    private Lexicon _currentNameSet;
 
     #region API
     void RefeshAll()
@@ -247,7 +248,7 @@ public class NameGeneratorTest : MonoBehaviour
     {
         if (this._currentNameSet != null)
         {
-            this.label.text = this._currentNameSet.GenerateTitle(this.data, this._influenceSet);
+            this.label.text = this._currentNameSet.GenerateTitle(this.data);
         }
     }
 
@@ -278,13 +279,15 @@ public class NameGeneratorTest : MonoBehaviour
     [ContextMenu("Save")]
     public void Save()
     {
-        SemanticData.SaveData(Application.streamingAssetsPath + "/definitions", "semantic_data", this.data, false, false, "json");
+        GameDefinitions.Semantics = this.data;
+        GameDefinitions.BuildAll();
     }
 
     [ContextMenu("Load")]
     public void Load()
     {
-        SemanticData.LoadData(Application.streamingAssetsPath + "/definitions/semantic_data.json", this.data);
+        GameDefinitions.Init();
+        this.data = GameDefinitions.Semantics;
     }
     #endregion
 }
